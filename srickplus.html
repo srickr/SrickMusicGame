@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>SrickMusicPlus v1.11 - Barra Compacta</title>
+    
+    <script src="gabarito_plus.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700;900&display=swap');
+        
+        :root {
+            --ind-primary: #00e5ff; /* Ciano Neon (Cor Base) */
+            --ind-primary-dark: #00b8d4;
+            --ind-neon-green: #39ff14; /* Verde Neon Vibrante */
+            --ind-neon-purple: #d500f9; /* Roxo Neon (Novo Poder) */
+            --ind-metal-light: #78909c;
+            --ind-metal: #546e7a;
+            --ind-metal-dark: #37474f;
+            --ind-bg: #212121;
+            --ind-danger: #ff1744;
+            --ind-text: #eceff1;
+            --ind-shadow: 0 4px 6px rgba(0,0,0,0.5);
+            --border-style: 3px solid var(--ind-metal-dark);
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Chakra Petch', sans-serif;
+            margin: 0; padding: 10px; color: var(--ind-text); text-align: center; user-select: none; 
+            background-color: var(--ind-bg);
+            background-image: radial-gradient(circle at 50% 50%, #333 0%, #111 100%);
+            min-height: 100vh; overflow-x: hidden; padding-bottom: 60px;
+        }
+
+        .screen { display: none; max-width: 1200px; margin: 0 auto; width: 100%; position: relative; z-index: 1; }
+        .active { display: block; animation: slideIn 0.4s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        h1 { 
+            color: var(--ind-primary); text-transform: uppercase; letter-spacing: 2px; 
+            font-size: 2.2em; margin: 20px 0; 
+            border-bottom: 4px solid var(--ind-metal);
+            display: inline-block; padding: 5px 30px;
+            background: var(--ind-metal-dark);
+            box-shadow: 0 0 15px var(--ind-primary-dark);
+            transform: skew(-5deg);
+        }
+        
+        /* Estilo Base dos Botões */
+        button { 
+            padding: 12px 20px; font-family: 'Chakra Petch', sans-serif; font-weight: 700; text-transform: uppercase;
+            background: linear-gradient(to bottom, var(--ind-metal), var(--ind-metal-dark));
+            border: 2px solid var(--ind-metal-dark); border-bottom-width: 4px; color: var(--ind-primary);
+            margin: 5px; cursor: pointer; transition: all 0.1s; 
+            box-shadow: var(--ind-shadow); border-radius: 4px; text-shadow: 1px 1px 2px black;
+        }
+        button:hover:not(:disabled) { 
+            background: var(--ind-primary); color: black; border-color: var(--ind-primary-dark);
+            text-shadow: none; box-shadow: 0 0 15px var(--ind-primary-dark);
+        }
+        button:active:not(:disabled) { transform: translateY(2px); border-bottom-width: 2px; }
+        button:disabled { background: #333; color: #555; border-color: #222; box-shadow: none; cursor: not-allowed; text-shadow: none; }
+
+        /* --- NOVOS ESTILOS DE BOTÕES --- */
+        .btn-cyan { color: var(--ind-primary); border-color: var(--ind-primary-dark); box-shadow: 0 0 5px var(--ind-primary-dark); }
+        .btn-cyan:hover { background: var(--ind-primary) !important; color: black !important; box-shadow: 0 0 20px var(--ind-primary) !important; }
+
+        .btn-neon-green { background: linear-gradient(to bottom, #32cb10, #28a40e) !important; color: black !important; border-color: #1f820b !important; text-shadow: none !important; font-weight: 900; box-shadow: 0 0 5px #32cb10; }
+        .btn-neon-green:hover:not(:disabled) { background: var(--ind-neon-green) !important; box-shadow: 0 0 25px var(--ind-neon-green) !important; border-color: white !important; }
+        .btn-neon-green:disabled { background: #333 !important; color: #555 !important; border-color: #222 !important; box-shadow: none !important; }
+
+        .btn-neon-purple { background: linear-gradient(to bottom, #aa00ff, #7200ca) !important; color: white !important; border-color: #4a0072 !important; box-shadow: 0 0 5px #d500f9; }
+        .btn-neon-purple:hover:not(:disabled) { background: var(--ind-neon-purple) !important; box-shadow: 0 0 25px var(--ind-neon-purple) !important; }
+
+        .btn-danger { background: linear-gradient(to bottom, #ef5350, #c62828); color: white; border-color: #b71c1c; }
+        .btn-danger:hover { background: #ff5252; color: white; box-shadow: 0 0 15px #ff5252; }
+        .btn-success { background: linear-gradient(to bottom, #66bb6a, #2e7d32); color: white; border-color: #1b5e20; }
+        .btn-undo { border-style: dashed; background: var(--ind-metal-dark); color: #aaa; }
+        
+        /* Botão Apenas Ícone (Tela Cheia) */
+        .btn-icon { width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 1.4em; background: #444; border-color: #222; color: white; }
+        
+        .ctrl-input { width: 75px; text-align: center; font-size: 1.3em; padding: 8px; border: var(--border-style); background: #111; color: var(--ind-primary); font-family: monospace; font-weight: bold; }
+        input[type="text"], select { padding: 12px; border: var(--border-style); background: var(--ind-metal-dark); color: var(--ind-text); font-family: 'Chakra Petch'; margin: 5px; text-align: center; width: 90%; font-weight: bold; }
+        input:focus, select:focus { outline: none; border-color: var(--ind-primary); background: #111; }
+
+        .genre-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; max-height: 200px; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.2); border: 2px solid #111; }
+        .genre-option { background: var(--ind-metal-dark); border: 2px solid var(--ind-metal); padding: 8px; cursor: pointer; font-size: 0.9em; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s; }
+        .genre-option:hover { border-color: var(--ind-primary); }
+        .genre-option.selected { background: var(--ind-primary); color: black; border-color: white; font-weight: bold; }
+        .genre-checkbox { display: none; }
+
+        .color-picker-container { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-top: 5px; padding: 5px; background: rgba(0,0,0,0.3); border: 2px solid var(--ind-metal-dark); }
+        .color-swatch { width: 28px; height: 28px; border: 2px solid #111; cursor: pointer; transition: all 0.2s; }
+        .color-swatch.selected { border: 3px solid white; box-shadow: 0 0 8px white; transform: scale(1.15); }
+
+        #timeline { display: flex; gap: 8px; margin: 15px 0 5px 0; padding: 20px 15px; min-height: 190px; overflow-x: auto; border-top: 4px solid var(--ind-metal); border-bottom: 4px solid var(--ind-metal); background: rgba(0,0,0,0.3); }
+        
+        .card { 
+            background: linear-gradient(to bottom right, var(--ind-metal), var(--ind-metal-dark)); 
+            color: var(--ind-text); padding: 5px; border: 2px solid #111; border-top: 2px solid var(--ind-metal-light); 
+            min-width: 120px; max-width: 120px; height: 100px; font-weight: bold; position: relative; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.6); flex-shrink: 0; text-shadow: 1px 1px 1px black; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .card .ano { font-size: 2.8em; color: var(--ind-primary); font-weight: 900; line-height: 1; }
+        .card.card-inicial { border: 3px dashed var(--ind-primary-dark); background: linear-gradient(to bottom right, #2c2c2c, #1a1a1a); cursor: default; }
+        
+        .slot { min-width: 50px; height: 100px; background: rgba(0,0,0,0.2); cursor: pointer; border: 3px dashed var(--ind-metal); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.8em; color: var(--ind-metal); flex-shrink: 0; transition: all 0.2s; }
+        .slot:hover { border-color: var(--ind-primary); color: var(--ind-primary); }
+        .slot.selected-owner { border: 3px solid black; color: black; opacity: 1 !important; box-shadow: 0 0 15px white; }
+        .slot.selected-challenger { border: 3px solid black; color: black; opacity: 1 !important; box-shadow: 0 0 15px white; }
+        
+        .vinyl-wrapper { width: 160px; height: 160px; margin: 0 auto 15px auto; border-radius: 50%; background: #111; border: 4px solid var(--ind-metal); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .vinyl-label { width: 40%; height: 40%; border-radius: 50%; background: radial-gradient(var(--ind-primary), var(--ind-primary-dark)); border: 3px solid black; display: flex; align-items: center; justify-content: center; font-size: 1.5em; font-weight: 900; color: black; }
+        .spinning { animation: spinVinyl 4s linear infinite; }
+        @keyframes spinVinyl { 100% { transform: rotate(360deg); } }
+
+        /* --- INFO BAR REDESENHADO (ESTREITO E COMPACTO) --- */
+        #info-bar { 
+            border: var(--border-style); background: var(--ind-metal-dark); 
+            padding: 8px 15px; margin-bottom: 15px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            flex-wrap: wrap; gap: 10px; box-shadow: var(--ind-shadow); 
+        }
+        
+        /* 3 Colunas no Header */
+        .info-left { flex: 1; display: flex; flex-direction: row; align-items: center; gap: 8px; min-width: 150px; }
+        .info-center { flex: 2; display: flex; justify-content: center; gap: 15px; min-width: 200px; }
+        .info-right { flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 150px; }
+
+        #nome-jogador-atual { font-size: 1.2em; color: var(--ind-primary); font-weight: 900; background: #111; padding: 3px 10px; border: 2px solid var(--ind-metal); text-transform: uppercase; display: inline-block; }
+        
+        /* Caixas de Status Menores e Elegantes */
+        .stats-box { 
+            background: #111; border: 2px solid var(--ind-metal); 
+            padding: 5px 15px; font-weight: 900; color: var(--ind-primary); 
+            display: flex; align-items: center; gap: 8px; font-size: 1.4em; 
+            border-radius: 6px; box-shadow: inset 0 0 10px black, 0 0 8px rgba(0, 229, 255, 0.2);
+            text-shadow: 1px 1px 2px black;
+        }
+        
+        .card-revelado { background: var(--ind-metal-dark); border: 4px solid var(--ind-primary); padding: 20px; width: 100%; box-shadow: 0 0 30px var(--ind-primary-dark); margin: 10px auto; }
+        .reveal-layout { display: flex; flex-direction: column; gap: 15px; width: 95%; max-width: 900px; margin: 0 auto; }
+        @media (min-width: 768px) { .reveal-layout { flex-direction: row; align-items: stretch; } }
+        
+        .bonus-section { display: none; flex-direction: column; justify-content: center; background: var(--ind-metal-dark); border: 3px solid var(--ind-primary); padding: 15px; flex: 2; }
+
+        #sidebar-stats { position: fixed; right: 20px; bottom: 20px; width: 350px; background: rgba(33,33,33,0.98); border: 4px solid var(--ind-metal); padding: 15px; z-index: 1000; display: none; box-shadow: 0 0 20px black; max-height: 60vh; overflow-y: auto; }
+        @media (min-width: 1300px) { #sidebar-stats { display: block !important; } }
+        
+        .sb-row { display: grid; grid-template-columns: 1fr 60px 60px; gap: 10px; padding: 8px; border-bottom: 1px solid #444; align-items: center; }
+        .sb-row.active { background: rgba(0, 229, 255, 0.15); border: 1px solid var(--ind-primary); }
+        
+        .modal-overlay { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); align-items: center; justify-content: center; }
+        .modal-box { background-color: var(--ind-metal-dark); border: 4px solid var(--ind-metal); padding: 25px; width: 90%; max-width: 500px; text-align: center; max-height: 90vh; overflow-y: auto; }
+        
+        .tag-genero { font-size: 0.8em; background: #111; color: #aaa; padding: 2px 6px; border-radius: 4px; border: 1px solid #444; margin-top: 5px; display: inline-block; }
+    </style>
+</head>
+<body>
+
+    <div id="screen-load" class="screen active">
+        <div class="vinyl-wrapper spinning">
+            <div class="vinyl-label">MP+</div>
+        </div>
+        <h1>SrickMusicPlus</h1>
+        <div style="border: var(--border-style); background: var(--ind-metal-dark); padding: 30px; display: inline-block; width: 90%; box-shadow: var(--ind-shadow);">
+            <p style="font-size: 1.2em; font-weight: bold;">[ CARREGAR SISTEMA ]</p>
+            <p>Selecione a pasta com seus arquivos MP3.</p>
+            <label for="folderInput" class="btn-success" style="display:inline-block; padding: 20px 40px; font-size: 1.2em; cursor: pointer; font-weight: 900; background: var(--ind-primary); color: black; border: 3px solid black;">📁 SELECIONAR ARQUIVOS</label>
+            <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none">
+        </div>
+        <div id="loading-bar-container" style="width: 90%; margin: 30px auto; border: 3px solid #111; height: 25px; display:none; background: #111;">
+            <div id="loading-bar" style="width: 0%; height: 100%; background: repeating-linear-gradient(45deg, var(--ind-primary), var(--ind-primary) 10px, var(--ind-primary-dark) 10px, var(--ind-primary-dark) 20px);"></div>
+        </div>
+        <p id="loading-msg" style="margin-top: 15px; font-weight: bold; font-size: 1em; text-transform: uppercase;"></p>
+        <br>
+        <button id="btn-goto-setup" style="display:none; font-size: 1.3em; padding: 15px 50px;" onclick="irParaSetup()">CONFIGURAR PARTIDA >></button>
+    </div>
+
+    <div id="screen-setup" class="screen">
+        <h1>CONFIGURAÇÃO</h1>
+        <div class="cache-status">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #111; padding-bottom: 5px;">
+                <span style="font-weight:900;">STATUS DA COLEÇÃO</span>
+                <button onclick="limparCache()" class="btn-danger" style="padding:5px 10px; font-size:0.7em;">LIMPAR DADOS</button>
+            </div>
+            <div style="margin-top:5px;">Músicas Totais: <b id="stat-total" style="color:var(--ind-primary);">0</b></div>
+            <div>Histórico (Já Tocadas): <b id="stat-tocadas" style="color:var(--ind-neon-green);">0</b></div>
+            <div>Gêneros Detectados: <b id="stat-generos" style="color:var(--ind-primary);">0</b></div>
+        </div>
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 20px;">
+            <div style="flex: 1; min-width: 300px; border: var(--border-style); background: var(--ind-metal-dark); padding: 15px; box-shadow: var(--ind-shadow);">
+                <label style="font-weight: 900; color: var(--ind-primary);">JOGADORES & META</label>
+                <div style="display:flex; justify-content: center; align-items: center; gap: 10px; margin-top: 10px;">
+                    <span>Jogadores:</span>
+                    <select id="qtd-players" onchange="gerarInputsJogadores()" style="width: auto; padding: 8px;">
+                        <option value="2">2</option><option value="3">3</option><option value="4">4</option>
+                        <option value="5">5</option><option value="6">6</option><option value="7">7</option>
+                        <option value="8">8</option><option value="9">9</option><option value="10">10</option>
+                        <option value="11">11</option><option value="12">12</option>
+                    </select>
+                </div>
+                <div style="display:flex; justify-content: center; align-items: center; gap: 10px; margin-top: 10px;">
+                    <span>Cartas para Vitória:</span>
+                    <input type="number" id="input-vitoria" value="10" min="1" max="50" class="ctrl-input" style="width: 60px;">
+                </div>
+            </div>
+            <div style="flex: 1; min-width: 300px; border: var(--border-style); background: var(--ind-metal-dark); padding: 15px; box-shadow: var(--ind-shadow);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label style="font-weight: 900; color: var(--ind-primary);">FILTRAR GÊNEROS</label>
+                    <button onclick="alternarTodosGeneros()" style="font-size:0.7em; padding:5px 10px;">TODOS/NENHUM</button>
+                </div>
+                <div id="container-generos" class="genre-grid">
+                    <div style="padding:10px; opacity:0.7;">Carregue as músicas primeiro...</div>
+                </div>
+                <div style="font-size:0.8em; margin-top:5px; text-align:right;">Músicas Disponíveis com Filtro: <b id="stat-filtradas">0</b></div>
+            </div>
+        </div>
+        <div id="player-inputs" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; margin-top: 20px;"></div>
+        <br>
+        <button onclick="iniciarJogo()" style="font-size: 1.5em; padding: 20px 50px; width: 100%; background: var(--ind-primary); color: black;">[ INICIAR PARTIDA ]</button>
+    </div>
+
+    <div id="screen-game" class="screen">
+        <div id="sidebar-stats">
+            <div style="text-align:center; font-weight:900; background:var(--ind-primary); color:black; padding:10px; margin-bottom:10px;">PLACAR</div>
+            <div id="sidebar-content-pc"></div>
+        </div>
+        
+        <div id="info-bar">
+            <div class="info-left">
+                <span style="opacity: 0.7; font-size: 0.8em; font-weight: bold;">VEZ DE:</span>
+                <span id="nome-jogador-atual">...</span>
+            </div>
+            
+            <div class="info-center">
+                <div class="stats-box" title="Cartas na Timeline / Meta para Vitória">🎵 <span id="progresso-atual">0/0</span></div>
+                <div class="stats-box" title="Fichas Disponíveis">🪙 <span id="fichas-atual">0</span></div>
+            </div>
+            
+            <div class="info-right">
+                <button class="btn-detail" onclick="abrirPlacarGeral()" style="font-size: 0.8em; padding: 6px 12px; margin: 0;">PLACAR</button>
+                <button class="btn-danger" onclick="confirmarReiniciar()" style="font-size: 0.8em; padding: 6px 12px; margin: 0;">🔄 SAIR</button>
+                <button class="btn-icon" onclick="toggleFullScreen()" title="Tela Cheia" style="margin: 0;">⛶</button>
+            </div>
+        </div>
+        
+        <div id="fase-msg" style="font-size:1.2em; color:var(--ind-primary); margin:10px 0; font-weight: bold; min-height: 25px;"></div>
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <button onclick="moverTimeline(-1)" class="btn-cyan" style="font-size:1.5em; width:50px;">&lt;</button>
+            <div id="timeline-container" style="flex:1; overflow:hidden;"><div id="timeline"></div></div>
+            <button onclick="moverTimeline(1)" class="btn-cyan" style="font-size:1.5em; width:50px;">&gt;</button>
+        </div>
+        <div id="mesa-jogo">
+            <div id="area-play">
+                <div class="vinyl-wrapper interactable" onclick="tocarMusicaRodada()" style="cursor:pointer;">
+                    <div class="vinyl-label">▶ PLAY</div>
+                </div>
+                <p id="label-play">[ CLIQUE PARA TOCAR ]</p>
+                <button id="btn-escolher-genero" class="btn-neon-purple" style="display:none; margin-top:20px;" onclick="abrirModalGenero()">🔮 ESCOLHER GÊNERO (1 FICHA)</button>
+            </div>
+            <div id="area-misterio" style="display:none;">
+                <div class="vinyl-wrapper spinning"><div class="vinyl-label">Tocando</div></div>
+                <div style="margin-top: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                    <button id="btn-pause" onclick="alternarPausa()" class="btn-neon-green">PAUSAR</button>
+                    <button id="btn-pular" onclick="usarFichaParaPular()" class="btn-neon-green">PULAR (1)</button>
+                    <button id="btn-comprar" onclick="comprarCarta()" class="btn-neon-green">COMPRAR (3)</button>
+                </div>
+                <div class="mystery-actions" style="margin-top:15px; display:flex; gap:10px; justify-content:center;">
+                    <button id="btn-desfazer" onclick="desfazerUltimaAcao()" class="btn-undo" style="display:none;">DESFAZER</button>
+                    <button id="btn-revelar" onclick="revelarCarta()" class="btn-success" style="display:none; background:var(--ind-primary); color:black;">CONFIRMAR</button>
+                </div>
+            </div>
+            <div id="area-revelacao" style="display:none;">
+                <div class="reveal-layout">
+                    <div id="card-resultado" class="card-revelado">
+                        <h2 id="res-ano" style="font-size: 3.5em; margin: 0; color: var(--ind-primary);">2000</h2>
+                        <h3 id="res-musica" style="margin: 10px 0;">Musica</h3>
+                        <p id="res-artista" style="opacity: 0.8;">Artista</p>
+                        <span id="res-genero" class="tag-genero">ROCK</span>
+                        <div id="res-msg" style="margin-top: 20px; font-weight: 900; background: #111; padding: 10px;">RESULTADO</div>
+                    </div>
+                    <div class="bonus-section">
+                        <span style="font-weight: bold; color: var(--ind-primary);">BÔNUS ARTISTA/MÚSICA?</span>
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button id="btn-bonus-win" onclick="processarBonus(true)" style="flex:1; background:var(--ind-primary); color:black;">SIM (+1)</button>
+                            <button id="btn-bonus-fail" onclick="processarBonus(false)" class="btn-danger" style="flex:1;">NÃO (-1)</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-container" style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
+                    <button onclick="cancelarRodada()" class="btn-danger">CANCELAR RODADA</button>
+                    <button id="btn-proximo" onclick="proximoJogador()" style="background:white; color:black;">PRÓXIMO >></button>
+                </div>
+            </div>
+        </div>
+        <audio id="audio-player" style="display:none;"></audio>
+    </div>
+
+    <div id="modal-challenger" class="modal-overlay">
+        <div class="modal-box">
+            <h2 style="color:var(--ind-primary);">DESAFIO!</h2>
+            <p>Quem deseja desafiar a posição?</p>
+            <div id="lista-challengers" style="max-height:200px; overflow-y:auto; text-align:left;"></div>
+            <button onclick="document.getElementById('modal-challenger').style.display='none'" class="btn-danger" style="margin-top:10px; width:100%;">CANCELAR</button>
+        </div>
+    </div>
+    <div id="modal-escolha-genero" class="modal-overlay">
+        <div class="modal-box">
+            <h2 style="color:var(--ind-neon-purple);">🔮 ESCOLHER GÊNERO</h2>
+            <p>Gastar 1 Ficha para forçar o próximo gênero?</p>
+            <div id="lista-generos-extra" style="max-height:300px; overflow-y:auto; text-align:left; display:grid; grid-template-columns: 1fr 1fr; gap:5px;"></div>
+            <button onclick="document.getElementById('modal-escolha-genero').style.display='none'" class="btn-danger" style="margin-top:15px; width:100%;">CANCELAR</button>
+        </div>
+    </div>
+    <div id="modal-placar" class="modal-overlay">
+        <div class="modal-box" style="width:95%; max-width:800px;">
+            <div style="display:flex; justify-content:space-between;"><h2>PLACAR GERAL</h2> <button onclick="document.getElementById('modal-placar').style.display='none'">X</button></div>
+            <div id="placar-lista"></div>
+        </div>
+    </div>
+    <div id="screen-vitoria" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:var(--ind-bg); z-index:3000; flex-direction:column; align-items:center; overflow-y:auto; padding:20px;">
+        <div style="font-size: 5em;">🏆</div>
+        <h1>VENCEDOR</h1>
+        <h2 id="nome-vencedor" style="font-size: 3em; color: var(--ind-primary);">NOME</h2>
+        <div id="final-standings" style="width:90%; max-width:800px; margin:20px 0; position:relative; z-index: 10;"></div>
+        <button onclick="reiniciarPartida()" style="font-size:1.5em; padding:20px; position:relative; z-index: 10;">NOVA PARTIDA</button>
+    </div>
+
+    <script>
+        // --- SISTEMA DE SFX (Sintetizador Web Audio API) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function tocarSFX(tipo) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (tipo === 'moeda') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1000, t);
+                osc.frequency.setValueAtTime(1500, t + 0.1);
+                gain.gain.setValueAtTime(0.1, t);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
+                osc.start(t);
+                osc.stop(t + 0.2);
+            } 
+            else if (tipo === 'acerto') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, t); 
+                osc.frequency.setValueAtTime(554.37, t + 0.1); 
+                osc.frequency.setValueAtTime(659.25, t + 0.2); 
+                gain.gain.setValueAtTime(0.1, t);
+                gain.gain.linearRampToValueAtTime(0, t + 0.4);
+                osc.start(t);
+                osc.stop(t + 0.4);
+            }
+            else if (tipo === 'erro') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, t);
+                osc.frequency.linearRampToValueAtTime(150, t + 0.3);
+                gain.gain.setValueAtTime(0.1, t);
+                gain.gain.linearRampToValueAtTime(0, t + 0.3);
+                osc.start(t);
+                osc.stop(t + 0.3);
+            }
+            else if (tipo === 'vitoria') {
+                osc.type = 'square';
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => { 
+                    osc.frequency.setValueAtTime(freq, t + (i * 0.15));
+                });
+                gain.gain.setValueAtTime(0.1, t);
+                gain.gain.linearRampToValueAtTime(0, t + 1.2);
+                osc.start(t);
+                osc.stop(t + 1.2);
+            }
+        }
+
+        // --- SISTEMA DE CONFETES ---
+        function dispararConfetes() {
+            const cores = ['#00e5ff', '#39ff14', '#d500f9', '#ffab00', '#ff1744', '#ffffff'];
+            for(let i = 0; i < 150; i++) {
+                let conf = document.createElement('div');
+                conf.style.position = 'fixed';
+                conf.style.width = Math.random() * 10 + 5 + 'px';
+                conf.style.height = Math.random() * 5 + 5 + 'px';
+                conf.style.backgroundColor = cores[Math.floor(Math.random() * cores.length)];
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.top = '-20px';
+                conf.style.zIndex = '5';
+                conf.style.opacity = Math.random() + 0.5;
+                conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+                conf.style.transition = `top ${Math.random() * 2 + 2}s ease-in, transform ${Math.random() * 2 + 2}s linear, opacity 3s`;
+                document.body.appendChild(conf);
+                
+                setTimeout(() => {
+                    conf.style.top = '120vh';
+                    conf.style.transform = `rotate(${Math.random() * 720}deg)`;
+                    conf.style.opacity = '0';
+                }, 50);
+                setTimeout(() => conf.remove(), 4000);
+            }
+        }
+
+        // --- SISTEMA DE TELA CHEIA (Fullscreen) ---
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`Não foi possível ativar tela cheia: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // --- VARIÁVEIS GLOBAIS ---
+        let bancoTotal = [], bancoFiltrado = [], bancoDeMusicas = [], historicoTocadas = [];
+        let jogadores = [], indiceJogadorAtual = 0;
+        let cartaDaRodada = null, maximoCartasVitoria = 10;
+        let faseRodada = 0, slotEscolhidoPeloDono = -1;
+        let apostasDesafiantes = [], bonusErradoNaRodada = false;
+        let generosDisponiveis = new Set();
+        let resultadoTurno = { vencedor: null, donoAcertou: false };
+        let modoTodosGeneros = false;
+        let generoForcado = null;
+        let vitoriaDeclarada = false;
+
+        const CORES_JOGADORES = ['#00e5ff', '#ff4081', '#ffd740', '#69f0ae', '#b388ff', '#ffab40', '#40c4ff', '#ff5252', '#e040fb', '#64ffda', '#cddc39', '#ff6e40'];
+
+        document.getElementById('folderInput').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files).filter(f => f.name.toLowerCase().endsWith('.mp3'));
+            if (files.length === 0) return alert("Nenhum MP3 encontrado.");
+            if (typeof window.DB_MUSICAS === 'undefined') return alert("ERRO: gabarito_plus.js não carregado.");
+
+            document.getElementById('loading-bar-container').style.display = 'block';
+            bancoTotal = []; generosDisponiveis.clear();
+
+            let processados = 0;
+            files.forEach(file => {
+                const dados = window.DB_MUSICAS[file.name];
+                if (dados) {
+                    const gen = dados.genero || "Outros";
+                    generosDisponiveis.add(gen);
+                    bancoTotal.push({ 
+                        fileObj: file, 
+                        musica: dados.musica, 
+                        artista: dados.artista, 
+                        ano: dados.ano, 
+                        genero: gen,
+                        usada: false 
+                    });
+                    processados++;
+                }
+            });
+
+            document.getElementById('loading-bar').style.width = "100%";
+            document.getElementById('loading-msg').innerText = `${processados} MÚSICAS PRONTAS.`;
+            document.getElementById('btn-goto-setup').style.display = 'inline-block';
+            renderizarSelecaoGeneros();
+            atualizarStatsCache(); 
+        });
+
+        function renderizarSelecaoGeneros() {
+            const container = document.getElementById('container-generos');
+            container.innerHTML = "";
+            const listaOrdenada = Array.from(generosDisponiveis).sort();
+            if(listaOrdenada.length === 0) { container.innerHTML = "<div style='padding:10px;'>Nenhum gênero detectado.</div>"; return; }
+            listaOrdenada.forEach(gen => {
+                const div = document.createElement('div');
+                div.className = 'genre-option selected';
+                div.onclick = function() { toggleGenero(this); };
+                div.innerHTML = `<span>${gen}</span><input type="checkbox" class="genre-checkbox" value="${gen}" checked>`;
+                container.appendChild(div);
+            });
+            atualizarContagemFiltrada();
+            document.getElementById('stat-total').innerText = bancoTotal.length;
+            document.getElementById('stat-generos').innerText = listaOrdenada.length;
+        }
+
+        function toggleGenero(el) {
+            el.classList.toggle('selected');
+            const cb = el.querySelector('input');
+            cb.checked = !cb.checked;
+            atualizarContagemFiltrada();
+        }
+
+        function alternarTodosGeneros() {
+            const opcoes = document.querySelectorAll('.genre-option');
+            const temDesmarcado = Array.from(opcoes).some(el => !el.classList.contains('selected'));
+            opcoes.forEach(el => {
+                const cb = el.querySelector('input');
+                if (temDesmarcado) { el.classList.add('selected'); cb.checked = true; } 
+                else { el.classList.remove('selected'); cb.checked = false; }
+            });
+            atualizarContagemFiltrada();
+        }
+
+        function atualizarContagemFiltrada() {
+            const selecionados = Array.from(document.querySelectorAll('.genre-checkbox:checked')).map(cb => cb.value);
+            const qtd = bancoTotal.filter(m => selecionados.includes(m.genero)).length;
+            const el = document.getElementById('stat-filtradas');
+            el.innerText = qtd;
+            el.style.color = qtd < 20 ? 'red' : 'var(--ind-primary)';
+        }
+
+        function irParaSetup() {
+            trocarTela('screen-setup');
+            carregarConfiguracoesSalvas();
+            atualizarStatsCache(); 
+            if(bancoTotal.length > 0) atualizarContagemFiltrada();
+        }
+
+        function iniciarJogo() {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const generosSelecionados = Array.from(document.querySelectorAll('.genre-checkbox:checked')).map(cb => cb.value);
+            if (generosSelecionados.length === 0) return alert("Selecione pelo menos 1 gênero musical!");
+            
+            modoTodosGeneros = (generosSelecionados.length === generosDisponiveis.size);
+
+            bancoFiltrado = bancoTotal.filter(m => generosSelecionados.includes(m.genero));
+            carregarHistorico();
+            bancoDeMusicas = bancoFiltrado.filter(m => !historicoTocadas.includes(m.fileObj.name));
+
+            const qtdJogadores = parseInt(document.getElementById('qtd-players').value);
+            const minMusicas = (qtdJogadores * 2) + 5; 
+
+            if (bancoDeMusicas.length < minMusicas) {
+                if(!confirm(`ATENÇÃO: Apenas ${bancoDeMusicas.length} músicas disponíveis. Continuar?`)) return;
+            }
+
+            maximoCartasVitoria = parseInt(document.getElementById('input-vitoria').value);
+            configurarJogadores(qtdJogadores);
+            salvarConfiguracao();
+            
+            embaralhar(bancoDeMusicas);
+            distribuirCartasIniciais();
+            
+            vitoriaDeclarada = false;
+            trocarTela('screen-game');
+            resetarRodada();
+        }
+
+        function configurarJogadores(qtd) {
+            jogadores = [];
+            for(let i=1; i<=qtd; i++) {
+                const nome = document.getElementById(`nome-p${i}`).value || `JOGADOR ${i}`;
+                const cor = document.getElementById(`cor-p${i}`).value || CORES_JOGADORES[(i-1)%CORES_JOGADORES.length];
+                jogadores.push({ nome, cor, timeline: [], fichas: 2 });
+            }
+            indiceJogadorAtual = 0;
+        }
+
+        function distribuirCartasIniciais() {
+            let cursor = 0;
+            jogadores.forEach(j => {
+                if(cursor < bancoDeMusicas.length) {
+                    let carta = bancoDeMusicas[cursor];
+                    carta.usada = true; carta.inicial = true;
+                    j.timeline.push(carta);
+                    salvarHistorico(carta.fileObj.name);
+                    cursor++;
+                }
+            });
+        }
+
+        function atualizarInfoBar() {
+            const j = jogadores[indiceJogadorAtual];
+            const nomeEl = document.getElementById('nome-jogador-atual');
+            nomeEl.innerText = j.nome;
+            nomeEl.style.color = j.cor;
+            const pontuacao = Math.max(0, j.timeline.length - 1);
+            document.getElementById('progresso-atual').innerText = `${pontuacao} / ${maximoCartasVitoria}`;
+            document.getElementById('fichas-atual').innerText = j.fichas;
+        }
+
+        function confirmarReiniciar() {
+            if(confirm("TEM CERTEZA? O jogo atual será encerrado.")) { location.reload(); }
+        }
+        
+        function abrirPlacarGeral() {
+            const lista = document.getElementById('placar-lista');
+            lista.innerHTML = '';
+            const ranking = [...jogadores].sort((a,b) => b.timeline.length - a.timeline.length);
+            ranking.forEach((j) => {
+                const isCurrent = (j === jogadores[indiceJogadorAtual]);
+                const destaque = isCurrent ? "border: 2px solid white;" : "";
+                let htmlCartas = '<div style="display:flex; gap:5px; overflow-x:auto; padding:5px;">';
+                j.timeline.forEach(c => {
+                   if(c.inicial) { htmlCartas += `<div style="min-width:40px; height:40px; background:#333; border:2px dashed ${j.cor}; color:#aaa; display:flex; align-items:center; justify-content:center; font-size:0.8em;">${c.ano}</div>`; } 
+                   else { htmlCartas += `<div style="min-width:40px; height:40px; background:${j.cor}; color:black; font-weight:bold; display:flex; align-items:center; justify-content:center; font-size:0.8em;" title="${c.musica}">${c.ano}</div>`; }
+                });
+                htmlCartas += '</div>';
+                lista.innerHTML += `<div style="background:#222; margin-bottom:10px; padding:10px; border-left:5px solid ${j.cor}; ${destaque}"><div style="display:flex; justify-content:space-between; font-weight:bold; color:white;"><span>${j.nome} ${isCurrent ? '◀' : ''}</span><span>${j.timeline.length-1} pts</span></div>${htmlCartas}</div>`;
+            });
+            document.getElementById('modal-placar').style.display = 'flex';
+        }
+
+        function reiniciarPartida() { location.reload(); }
+
+        function abrirModalGenero() {
+            const j = jogadores[indiceJogadorAtual];
+            if(j.fichas < 1) return alert("Você precisa de pelo menos 1 ficha!");
+            const lista = document.getElementById('lista-generos-extra');
+            lista.innerHTML = "";
+            const generos = Array.from(generosDisponiveis).sort();
+            generos.forEach(gen => {
+                lista.innerHTML += `<button style="padding:10px; background:#222; border:1px solid #555; color:var(--ind-primary);" onclick="comprarGenero('${gen.replace(/'/g, "\\'")}')">${gen}</button>`;
+            });
+            document.getElementById('modal-escolha-genero').style.display = 'flex';
+        }
+
+        function comprarGenero(gen) {
+            const j = jogadores[indiceJogadorAtual];
+            j.fichas--;
+            tocarSFX('moeda');
+            generoForcado = gen;
+            document.getElementById('modal-escolha-genero').style.display = 'none';
+            document.getElementById('btn-escolher-genero').style.display = 'none';
+            atualizarInfoBar();
+            atualizarStatus(`GÊNERO ESCOLHIDO: ${gen.toUpperCase()}`);
+            document.getElementById('label-play').innerHTML = `<span style="color:var(--ind-neon-purple); font-weight:bold;">[ TOCAR: ${gen.toUpperCase()} ]</span>`;
+        }
+
+        function tocarMusicaRodada() {
+            let pool = bancoDeMusicas.filter(m => !m.usada);
+            if (generoForcado) {
+                const poolFiltrada = pool.filter(m => m.genero === generoForcado);
+                if (poolFiltrada.length > 0) { pool = poolFiltrada; } 
+                else { alert(`Não há músicas de ${generoForcado}!`); jogadores[indiceJogadorAtual].fichas++; generoForcado = null; }
+            }
+            if(pool.length === 0) return alert("ACABARAM AS MÚSICAS!");
+            const indexSorteado = Math.floor(Math.random() * pool.length);
+            const carta = pool[indexSorteado];
+            cartaDaRodada = carta; carta.usada = true;
+            const player = document.getElementById('audio-player');
+            player.src = URL.createObjectURL(carta.fileObj);
+            player.play();
+            document.getElementById('area-play').style.display = 'none';
+            document.getElementById('area-misterio').style.display = 'block';
+            const j = jogadores[indiceJogadorAtual];
+            document.getElementById('btn-pular').disabled = (j.fichas < 1);
+            document.getElementById('btn-comprar').disabled = (j.fichas < 3);
+            document.getElementById('btn-pause').innerText = "PAUSAR";
+            faseRodada = 1;
+            atualizarStatus("OUVINDO... ESCOLHA O SLOT NA TIMELINE.");
+            renderizarTimeline(true);
+        }
+
+        function handleSlotClick(index) {
+            if (faseRodada === 1) {
+                slotEscolhidoPeloDono = index;
+                faseRodada = 2;
+                document.getElementById('btn-revelar').style.display = 'block';
+                document.getElementById('btn-desfazer').style.display = 'block';
+                document.getElementById('btn-pular').disabled = true;
+                document.getElementById('btn-comprar').disabled = true;
+                atualizarStatus("POSIÇÃO MARCADA. DESAFIOS ABERTOS.");
+                renderizarTimeline(true);
+            } else if (faseRodada === 2) {
+                if (index === slotEscolhidoPeloDono) return;
+                abrirModalDesafio(index);
+            }
+        }
+
+        function revelarCarta() {
+            document.getElementById('audio-player').pause();
+            salvarHistorico(cartaDaRodada.fileObj.name);
+            const jAtual = jogadores[indiceJogadorAtual];
+            const timeline = jAtual.timeline;
+            const ano = cartaDaRodada.ano;
+            const donoAcertou = verificarPosicao(timeline, slotEscolhidoPeloDono, ano);
+            resultadoTurno = { vencedor: null, posicao: -1 };
+            let msg = "";
+            let mostrarBonus = false;
+            apostasDesafiantes.forEach(a => jogadores[a.player].fichas = Math.max(0, jogadores[a.player].fichas - 1));
+
+            if (donoAcertou) {
+                resultadoTurno.vencedor = jAtual;
+                resultadoTurno.posicao = slotEscolhidoPeloDono;
+                jAtual.timeline.splice(slotEscolhidoPeloDono, 0, cartaDaRodada);
+                msg = `<span style='color:var(--ind-primary)'>${jAtual.nome} ACERTOU A POSIÇÃO!</span>`;
+                mostrarBonus = true;
+                tocarSFX('acerto'); 
+            } else {
+                const desafianteVencedor = apostasDesafiantes.find(a => verificarPosicao(timeline, a.slot, ano));
+                if (desafianteVencedor) {
+                    const jDesaf = jogadores[desafianteVencedor.player];
+                    resultadoTurno.vencedor = jDesaf;
+                    inserirOrdenado(jDesaf.timeline, cartaDaRodada);
+                    msg = `<span style="color:var(--ind-danger)">${jDesaf.nome} ROUBOU A CARTA!</span>`;
+                    tocarSFX('acerto'); 
+                } else {
+                    msg = "NINGUÉM ACERTOU. CARTA DESCARTADA.";
+                    tocarSFX('erro'); 
+                }
+            }
+            document.getElementById('area-misterio').style.display = 'none';
+            document.getElementById('area-revelacao').style.display = 'block';
+            document.getElementById('res-ano').innerText = ano;
+            document.getElementById('res-musica').innerText = cartaDaRodada.musica;
+            document.getElementById('res-artista').innerText = cartaDaRodada.artista;
+            document.getElementById('res-genero').innerText = cartaDaRodada.genero.toUpperCase();
+            document.getElementById('res-msg').innerHTML = msg;
+            const divBonus = document.querySelector('.bonus-section');
+            if(mostrarBonus) {
+                divBonus.style.display = 'flex';
+                document.getElementById('btn-bonus-win').disabled = false;
+                document.getElementById('btn-bonus-fail').disabled = false;
+            } else {
+                divBonus.style.display = 'none';
+            }
+            verificarVitoria();
+            atualizarSidebar();
+            atualizarInfoBar();
+        }
+
+        function verificarPosicao(timeline, index, anoCarta) {
+            const anterior = index > 0 ? timeline[index-1].ano : -9999;
+            const posterior = index < timeline.length ? timeline[index].ano : 9999;
+            return (anoCarta >= anterior && anoCarta <= posterior);
+        }
+
+        function inserirOrdenado(timeline, carta) {
+            let idx = timeline.findIndex(c => c.ano > carta.ano);
+            if(idx === -1) timeline.push(carta); else timeline.splice(idx, 0, carta);
+        }
+
+        function renderizarTimeline(interativo) {
+            const c = document.getElementById('timeline'); c.innerHTML = '';
+            const timeline = jogadores[indiceJogadorAtual].timeline;
+            timeline.forEach((carta, idx) => {
+                if(interativo) criarSlot(c, idx);
+                const div = document.createElement('div');
+                div.className = 'card ' + (carta.inicial ? 'card-inicial' : '');
+                div.title = `${carta.musica} - ${carta.artista}`; 
+                div.innerHTML = `<span class="ano">${carta.ano}</span>`;
+                div.onclick = () => verDetalhes(carta);
+                c.appendChild(div);
+            });
+            if(interativo) criarSlot(c, timeline.length);
+        }
+
+        function criarSlot(container, idx) {
+            const div = document.createElement('div');
+            div.className = 'slot';
+            div.innerText = '+';
+            if(idx === slotEscolhidoPeloDono) {
+                div.classList.add('selected-owner');
+                div.innerText = 'ALVO';
+                div.style.borderColor = jogadores[indiceJogadorAtual].cor;
+            } else {
+                const desafio = apostasDesafiantes.find(a => a.slot === idx);
+                if(desafio) {
+                    div.classList.add('selected-challenger');
+                    div.innerText = '⚠️';
+                    div.style.borderColor = jogadores[desafio.player].cor;
+                }
+            }
+            div.onclick = () => handleSlotClick(idx);
+            container.appendChild(div);
+        }
+
+        function resetarRodada() {
+            document.getElementById('area-play').style.display = 'block';
+            document.getElementById('area-misterio').style.display = 'none';
+            document.getElementById('area-revelacao').style.display = 'none';
+            document.getElementById('timeline').innerHTML = '';
+            faseRodada = 0; slotEscolhidoPeloDono = -1; apostasDesafiantes = [];
+            generoForcado = null;
+            document.getElementById('label-play').innerText = "[ CLIQUE PARA TOCAR ]";
+            const j = jogadores[indiceJogadorAtual];
+            const btnGenero = document.getElementById('btn-escolher-genero');
+            if (modoTodosGeneros && j.fichas >= 1) { btnGenero.style.display = 'block'; } else { btnGenero.style.display = 'none'; }
+            renderizarTimeline(false);
+            atualizarSidebar();
+            atualizarInfoBar();
+            atualizarStatus(`VEZ DE ${j.nome}`);
+        }
+
+        function proximoJogador() {
+            indiceJogadorAtual = (indiceJogadorAtual + 1) % jogadores.length;
+            resetarRodada();
+        }
+        
+        function atualizarStatus(msg) { document.getElementById('fase-msg').innerText = msg; }
+        function trocarTela(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+        function moverTimeline(direcao) { document.getElementById('timeline').scrollBy({ left: direcao * 250, behavior: 'smooth' }); }
+
+        function gerarInputsJogadores() {
+            const qtd = document.getElementById('qtd-players').value;
+            const container = document.getElementById('player-inputs');
+            container.innerHTML = "";
+            for(let i=1; i<=qtd; i++) {
+                const defCor = CORES_JOGADORES[(i-1)%CORES_JOGADORES.length];
+                container.innerHTML += `<div style="background:#111; padding:10px; border-left:4px solid ${defCor};"><input type="text" id="nome-p${i}" placeholder="Nome Jogador ${i}"><input type="hidden" id="cor-p${i}" value="${defCor}"><div class="color-picker-container">${CORES_JOGADORES.map(c => `<div class="color-swatch" style="background:${c}" onclick="setCor(${i}, '${c}', this)"></div>`).join('')}</div></div>`;
+            }
+        }
+        
+        function setCor(idx, cor, el) {
+            document.getElementById(`cor-p${idx}`).value = cor;
+            el.parentElement.querySelectorAll('.color-swatch').forEach(d=>d.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function salvarConfiguracao() {
+            const config = { qtd: document.getElementById('qtd-players').value, meta: document.getElementById('input-vitoria').value, players: jogadores.map(j => ({ nome: j.nome, cor: j.cor })) };
+            localStorage.setItem('musicplus_config', JSON.stringify(config));
+        }
+
+        function carregarConfiguracoesSalvas() {
+            const salvo = localStorage.getItem('musicplus_config');
+            if(salvo) {
+                const cfg = JSON.parse(salvo);
+                document.getElementById('qtd-players').value = cfg.qtd;
+                document.getElementById('input-vitoria').value = cfg.meta;
+                gerarInputsJogadores();
+                cfg.players.forEach((p, idx) => {
+                    const i = idx + 1;
+                    if(i <= cfg.qtd) { document.getElementById(`nome-p${i}`).value = p.nome; document.getElementById(`cor-p${i}`).value = p.cor; }
+                });
+            } else { gerarInputsJogadores(); }
+        }
+
+        function carregarHistorico() { const h = localStorage.getItem('musicplus_historico'); historicoTocadas = h ? JSON.parse(h) : []; }
+        function salvarHistorico(musica) { if(!historicoTocadas.includes(musica)) { historicoTocadas.push(musica); localStorage.setItem('musicplus_historico', JSON.stringify(historicoTocadas)); } }
+        
+        function atualizarStatsCache() {
+            const h = localStorage.getItem('musicplus_historico');
+            const totalTocadas = h ? JSON.parse(h).length : 0;
+            const el = document.getElementById('stat-tocadas');
+            if(el) el.innerText = totalTocadas;
+        }
+
+        function limparCache() { 
+            if(confirm("Apagar todo o histórico de músicas tocadas e nomes salvos?")) { 
+                localStorage.removeItem('musicplus_historico'); 
+                localStorage.removeItem('musicplus_config'); 
+                atualizarStatsCache(); 
+                alert("Cache limpo!");
+                location.reload(); 
+            } 
+        }
+
+        function usarFichaParaPular() {
+            if(confirm("Gastar 1 Ficha para pular?")) {
+                jogadores[indiceJogadorAtual].fichas--;
+                tocarSFX('moeda'); 
+                document.getElementById('audio-player').pause();
+                tocarMusicaRodada();
+                atualizarInfoBar();
+            }
+        }
+        function comprarCarta() {
+            if(confirm("Gastar 3 Fichas para comprar (garantir) a carta?")) {
+                jogadores[indiceJogadorAtual].fichas -= 3;
+                tocarSFX('moeda'); 
+                document.getElementById('audio-player').pause();
+                inserirOrdenado(jogadores[indiceJogadorAtual].timeline, cartaDaRodada);
+                salvarHistorico(cartaDaRodada.fileObj.name);
+                resultadoTurno.vencedor = jogadores[indiceJogadorAtual];
+                document.getElementById('area-misterio').style.display = 'none';
+                document.getElementById('area-revelacao').style.display = 'block';
+                document.getElementById('res-ano').innerText = cartaDaRodada.ano;
+                document.getElementById('res-musica').innerText = cartaDaRodada.musica;
+                document.getElementById('res-msg').innerHTML = "CARTA COMPRADA COM SUCESSO!";
+                document.querySelector('.bonus-section').style.display = 'none';
+                verificarVitoria();
+                atualizarInfoBar();
+            }
+        }
+        function alternarPausa() { const aud = document.getElementById('audio-player'); const btn = document.getElementById('btn-pause'); if(aud.paused) { aud.play(); btn.innerText = "PAUSAR"; } else { aud.pause(); btn.innerText = "▶ TOCAR"; } }
+        function atualizarSidebar() { const div = document.getElementById('sidebar-content-pc'); div.innerHTML = jogadores.map((j, idx) => `<div class="sb-row ${idx === indiceJogadorAtual ? 'active' : ''}"><span style="color:${j.cor}; font-weight:bold;">${j.nome}</span><span>🪙 ${j.fichas}</span><span>🎵 ${j.timeline.length-1}</span></div>`).join(''); }
+        
+        function abrirModalDesafio(idx) {
+            const lista = document.getElementById('lista-challengers'); lista.innerHTML = "";
+            const jaDesafiou = apostasDesafiantes.map(a => a.player);
+            jogadores.forEach((j, pIdx) => {
+                if(pIdx !== indiceJogadorAtual && j.fichas > 0 && !jaDesafiou.includes(pIdx)) {
+                    lista.innerHTML += `<button class="challenger-btn" style="width:100%; margin:5px 0; padding:10px; background:${j.cor}; color:black; font-weight:bold;" onclick="confirmarDesafio(${idx}, ${pIdx})">⚠️ ${j.nome} (Fichas: ${j.fichas})</button>`;
+                }
+            });
+            if(lista.innerHTML === "") return alert("Nenhum adversário com fichas.");
+            document.getElementById('modal-challenger').style.display = 'flex';
+        }
+
+        function confirmarDesafio(slot, playerIdx) {
+            apostasDesafiantes.push({ slot, player: playerIdx });
+            document.getElementById('modal-challenger').style.display = 'none';
+            renderizarTimeline(true);
+        }
+
+        function processarBonus(ganhou) {
+            const j = jogadores[indiceJogadorAtual];
+            if(ganhou) { 
+                if(j.fichas < 5) j.fichas++; 
+                tocarSFX('moeda');  
+            } else { 
+                if(j.fichas > 0) j.fichas--; 
+                tocarSFX('erro'); 
+            }
+            atualizarSidebar(); atualizarInfoBar(); document.querySelector('.bonus-section').style.display = 'none';
+        }
+        
+        function desfazerUltimaAcao() {
+            if(apostasDesafiantes.length > 0) { apostasDesafiantes.pop(); } 
+            else { slotEscolhidoPeloDono = -1; faseRodada = 1; document.getElementById('btn-revelar').style.display = 'none'; document.getElementById('btn-desfazer').style.display = 'none'; document.getElementById('btn-pular').disabled = false; document.getElementById('btn-comprar').disabled = false; atualizarStatus("AÇÃO DESFEITA. ESCOLHA NOVAMENTE."); }
+            renderizarTimeline(true);
+        }
+        
+        function cancelarRodada() {
+            if(!confirm("ATENÇÃO: Deseja cancelar a rodada?\n\n- Fichas apostadas serão devolvidas.\n- A carta atual será descartada (mesmo se ganha).")) return;
+
+            apostasDesafiantes.forEach(aposta => {
+                jogadores[aposta.player].fichas++;
+            });
+
+            if (resultadoTurno.vencedor) {
+                const timeline = resultadoTurno.vencedor.timeline;
+                const index = timeline.indexOf(cartaDaRodada);
+                if (index > -1) {
+                    timeline.splice(index, 1);
+                }
+            }
+            
+            resetarRodada();
+        }
+        
+        function verificarVitoria() { 
+            const j = resultadoTurno.vencedor; 
+            if (j && j.timeline.length - 1 >= maximoCartasVitoria) { 
+                document.getElementById('screen-vitoria').style.display = 'flex'; 
+                document.getElementById('nome-vencedor').innerText = j.nome; 
+                document.getElementById('nome-vencedor').style.color = j.cor; 
+                
+                if(!vitoriaDeclarada) {
+                    vitoriaDeclarada = true;
+                    tocarSFX('vitoria');
+                    dispararConfetes();
+                }
+            } 
+        }
+        
+        function verDetalhes(c) { alert(`${c.musica}\n${c.artista}\n${c.ano}\n${c.genero}`); }
+        function embaralhar(arr) { for(let i=arr.length-1; i>0; i--) { const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } }
+    </script>
+</body>
+</html>
