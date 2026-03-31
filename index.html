@@ -1,0 +1,3708 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>SrickMusicPlus Premium - Turntable Edition</title>
+    
+    <script src="gabarito_plus.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700;900&display=swap');
+        
+        :root {
+            --ind-primary: #00e5ff; /* Ciano Neon (Cor Base) */
+            --ind-primary-dark: #00b8d4;
+            --ind-neon-green: #39ff14; /* Verde Neon Vibrante */
+            --ind-neon-purple: #d500f9; /* Roxo Neon (Novo Poder) */
+            --ind-metal-light: #78909c;
+            --ind-metal: #546e7a;
+            --ind-metal-dark: #37474f;
+            --ind-bg: #212121;
+            --ind-danger: #ff1744;
+            --ind-text: #eceff1;
+            --ind-shadow: 0 4px 6px rgba(0,0,0,0.5);
+            --border-style: 3px solid var(--ind-metal-dark);
+            --zoom-level: 1; /* Variavel dinamica para corrigir rolagem do modal */
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Chakra Petch', sans-serif;
+            margin: 0; padding: 10px; color: var(--ind-text); text-align: center; user-select: none; 
+            background-color: var(--ind-bg);
+            background-image: radial-gradient(circle at 50% 50%, #333 0%, #111 100%);
+            min-height: 100vh; overflow-x: hidden; padding-bottom: 60px;
+            /* Suaviza a transicao do zoom */
+            transition: zoom 0.3s ease;
+        }
+
+        /* --- CONTROLE DE ZOOM INTEGRADO --- */
+        .zoom-inline {
+            display: flex; gap: 5px; background: #111;
+            padding: 5px 10px; border-radius: 8px; border: 2px solid var(--ind-metal-dark);
+            align-items: center; justify-content: center;
+        }
+        .zoom-inline .zoom-title { font-size: 0.8em; font-weight: bold; color: #aaa; margin-right: 5px; }
+        .zoom-inline .zoom-display { font-size: 0.9em; font-weight: bold; color: var(--ind-primary); min-width: 45px; text-align: center; }
+        .btn-zoom {
+            background: #222; color: var(--ind-primary); border: 1px solid var(--ind-metal);
+            width: 30px; height: 30px; font-size: 1.2em; font-weight: bold; cursor: pointer;
+            border-radius: 4px; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; padding: 0; margin: 0;
+        }
+        .btn-zoom:hover { background: var(--ind-primary); color: black; border-color: white; box-shadow: 0 0 10px var(--ind-primary); }
+
+        .screen { display: none; max-width: 1200px; margin: 0 auto; width: 100%; position: relative; z-index: 1; }
+        .active { display: block; animation: slideIn 0.4s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        h1 { 
+            color: var(--ind-primary); text-transform: uppercase; letter-spacing: 2px; 
+            font-size: 2.2em; margin: 20px 0; 
+            border-bottom: 4px solid var(--ind-metal);
+            display: inline-block; padding: 5px 30px;
+            background: var(--ind-metal-dark);
+            box-shadow: 0 0 15px var(--ind-primary-dark);
+            transform: skew(-5deg);
+        }
+        
+        /* Estilo Base dos Botoes */
+        button { 
+            padding: 12px 20px; font-family: 'Chakra Petch', sans-serif; font-weight: 700; text-transform: uppercase;
+            background: linear-gradient(to bottom, var(--ind-metal), var(--ind-metal-dark));
+            border: 2px solid var(--ind-metal-dark); border-bottom-width: 4px; color: var(--ind-primary);
+            margin: 5px; cursor: pointer; transition: all 0.1s; 
+            box-shadow: var(--ind-shadow); border-radius: 4px; text-shadow: 1px 1px 2px black;
+        }
+        button:hover:not(:disabled) { 
+            background: var(--ind-primary); color: black; border-color: var(--ind-primary-dark);
+            text-shadow: none; box-shadow: 0 0 15px var(--ind-primary-dark);
+        }
+        button:active:not(:disabled) { transform: translateY(2px); border-bottom-width: 2px; }
+        button:disabled { background: #333; color: #555; border-color: #222; box-shadow: none; cursor: not-allowed; text-shadow: none; }
+
+        /* --- NOVOS ESTILOS DE BOTOES --- */
+        .btn-cyan { color: var(--ind-primary); border-color: var(--ind-primary-dark); box-shadow: 0 0 5px var(--ind-primary-dark); }
+        .btn-cyan:hover { background: var(--ind-primary) !important; color: black !important; box-shadow: 0 0 20px var(--ind-primary) !important; }
+
+        .btn-neon-green { background: linear-gradient(to bottom, #32cb10, #28a40e) !important; color: black !important; border-color: #1f820b !important; text-shadow: none !important; font-weight: 900; box-shadow: 0 0 5px #32cb10; }
+        .btn-neon-green:hover:not(:disabled) { background: var(--ind-neon-green) !important; box-shadow: 0 0 25px var(--ind-neon-green) !important; border-color: white !important; }
+        .btn-neon-green:disabled { background: #333 !important; color: #555 !important; border-color: #222 !important; box-shadow: none !important; }
+
+        .btn-neon-purple { background: linear-gradient(to bottom, #aa00ff, #7200ca) !important; color: white !important; border-color: #4a0072 !important; box-shadow: 0 0 5px #d500f9; }
+        .btn-neon-purple:hover:not(:disabled) { background: var(--ind-neon-purple) !important; box-shadow: 0 0 25px var(--ind-neon-purple) !important; }
+
+        .btn-danger { background: linear-gradient(to bottom, #ef5350, #c62828); color: white; border-color: #b71c1c; }
+        .btn-danger:hover { background: #ff5252; color: white; box-shadow: 0 0 15px #ff5252; }
+        .btn-success { background: linear-gradient(to bottom, #66bb6a, #2e7d32); color: white; border-color: #1b5e20; }
+        .btn-undo { border-style: dashed; background: var(--ind-metal-dark); color: #aaa; }
+        
+        .btn-icon { width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 1.4em; background: #444; border-color: #222; color: white; }
+        
+        .ctrl-input { width: 75px; text-align: center; font-size: 1.3em; padding: 8px; border: var(--border-style); background: #111; color: var(--ind-primary); font-family: monospace; font-weight: bold; }
+        input[type="text"], select { padding: 12px; border: var(--border-style); background: var(--ind-metal-dark); color: var(--ind-text); font-family: 'Chakra Petch'; margin: 5px; text-align: center; width: 90%; font-weight: bold; }
+        input:focus, select:focus { outline: none; border-color: var(--ind-primary); background: #111; }
+        .setup-meta-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 14px;
+            margin-top: 12px;
+        }
+        .setup-meta-label {
+            min-width: 170px;
+            text-align: right;
+        }
+        .setup-choice-shell {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 84px;
+            min-height: 40px;
+            padding: 0 10px;
+            background: #111;
+            border: 2px solid var(--ind-metal-dark);
+            border-radius: 4px;
+            box-shadow: inset 0 0 14px rgba(0,0,0,0.55);
+        }
+        .setup-choice-shell select,
+        .setup-choice-shell input {
+            margin: 0;
+            width: auto;
+            min-width: 54px;
+            height: 100%;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: var(--ind-primary);
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.1em;
+            font-weight: 900;
+            text-align: center;
+            box-shadow: none;
+        }
+        .setup-choice-shell select:focus,
+        .setup-choice-shell input:focus {
+            background: transparent;
+            outline: none;
+        }
+        .setup-choice-shell input[type="number"] {
+            appearance: textfield;
+            -moz-appearance: textfield;
+        }
+        .setup-choice-shell input[type="number"]::-webkit-outer-spin-button,
+        .setup-choice-shell input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .player-setup-card {
+            position: relative;
+            background:
+                linear-gradient(180deg, rgba(12,18,24,0.98), rgba(6,10,14,0.96));
+            padding: 14px 14px 12px;
+            border-left: 4px solid var(--player-accent, #546e7a);
+            box-shadow: 0 16px 24px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(255,255,255,0.04);
+            overflow: hidden;
+        }
+        .player-setup-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.06), transparent 26%, transparent 72%, rgba(0,229,255,0.04));
+            pointer-events: none;
+        }
+        .player-name-row {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            margin: 0;
+            padding: 6px 8px;
+            background: var(--player-accent, #37474f) !important;
+            border: 2px solid rgba(0,0,0,0.55) !important;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12), 0 0 12px rgba(0,0,0,0.18);
+        }
+        .player-name-row:focus-within {
+            border-color: rgba(255,255,255,0.6) !important;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16), 0 0 10px rgba(0,229,255,0.2);
+        }
+        .player-name-input {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            width: auto !important;
+            margin: 0 !important;
+            padding: 8px 10px !important;
+            background: transparent !important;
+            border: 0 !important;
+            color: var(--player-ink, #e7eef2) !important;
+            box-shadow: none !important;
+            font-weight: 900;
+        }
+        .player-name-input::placeholder {
+            color: var(--player-placeholder, rgba(231,238,242,0.72));
+        }
+        .player-color-trigger {
+            position: relative;
+            z-index: 1;
+            width: 40px;
+            min-width: 40px;
+            height: 36px;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            background: rgba(0,0,0,0.14) !important;
+            border: 0 !important;
+            border-radius: 8px;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+            cursor: pointer;
+        }
+        .player-color-trigger:focus {
+            outline: none;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12), 0 0 10px rgba(0,229,255,0.22);
+        }
+        .player-color-trigger::after {
+            content: '▼';
+            color: var(--player-ink, #e7eef2);
+            font-size: 0.72em;
+            line-height: 1;
+        }
+        .player-color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--player-dot, rgba(231,238,242,0.5));
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.24);
+        }
+        .player-color-palette {
+            display: none;
+            position: relative;
+            z-index: 2;
+            margin-top: 10px;
+            padding: 10px;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 8px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(10,16,22,0.98), rgba(4,8,12,0.96));
+            border: 1px solid rgba(109, 144, 160, 0.2);
+            box-shadow: inset 0 0 16px rgba(0,0,0,0.52), 0 12px 24px rgba(0,0,0,0.22);
+        }
+        .player-setup-card.palette-open .player-color-palette {
+            display: grid;
+        }
+        .player-color-swatch {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.08);
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.28);
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+        .player-color-swatch:hover,
+        .player-color-swatch:focus {
+            outline: none;
+            transform: translateY(-1px);
+            border-color: rgba(255,255,255,0.44);
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.18), 0 0 14px rgba(255,255,255,0.14);
+        }
+        .player-color-swatch.selected {
+            border-color: rgba(255,255,255,0.9);
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.14), 0 0 16px rgba(255,255,255,0.28);
+            transform: scale(1.04);
+        }
+
+        .genre-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; max-height: 200px; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.2); border: 2px solid #111; }
+        .genre-option { background: var(--ind-metal-dark); border: 2px solid var(--ind-metal); padding: 8px; cursor: pointer; font-size: 0.9em; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s; }
+        .genre-option:hover { border-color: var(--ind-primary); }
+        .genre-option.selected { background: var(--ind-primary); color: black; border-color: white; font-weight: bold; }
+        .genre-checkbox { display: none; }
+
+        .color-picker-container { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-top: 5px; padding: 5px; background: rgba(0,0,0,0.3); border: 2px solid var(--ind-metal-dark); }
+        .color-swatch { width: 28px; height: 28px; border: 2px solid #111; cursor: pointer; transition: all 0.2s; }
+        .color-swatch.selected { border: 3px solid white; box-shadow: 0 0 8px white; transform: scale(1.15); }
+
+        /* --- LAYOUT DO JOGO (DUAS COLUNAS) --- */
+        .game-layout-main {
+            display: flex;
+            flex-direction: row; 
+            gap: 20px;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            align-items: flex-start;
+        }
+
+        @media (max-width: 900px) {
+            .game-layout-main { flex-direction: column-reverse; align-items: center; }
+        }
+
+        /* --- COLUNA ESQUERDA: PLACAR DA RODADA --- */
+        #sidebar-stats { 
+            width: 340px;
+            flex-shrink: 0; 
+            background: rgba(33,33,33,0.98); 
+            border: 4px solid var(--ind-metal); 
+            padding: 10px; 
+            box-shadow: 0 0 20px black; 
+            border-radius: 8px; 
+            display: block; 
+            cursor: zoom-in;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+        #sidebar-stats:hover {
+            box-shadow: 0 0 26px rgba(0,229,255,0.12), 0 0 20px black;
+        }
+        #sidebar-stats.sidebar-expanded {
+            position: fixed;
+            top: 18px;
+            bottom: 18px;
+            left: 50%;
+            width: min(1120px, calc(100vw - 36px));
+            max-width: none;
+            height: auto;
+            z-index: 6800;
+            transform: translateX(-50%);
+            padding: 18px;
+            overflow: auto;
+            border-width: 5px;
+            border-radius: 16px;
+            cursor: zoom-out;
+            background:
+                radial-gradient(circle at top left, rgba(255,255,255,0.08), transparent 24%),
+                rgba(18,22,26,0.98);
+            box-shadow: 0 0 30px rgba(0,229,255,0.14), 0 0 0 9999px rgba(0,0,0,0.78);
+        }
+        .sidebar-head {
+            display: grid;
+            grid-template-columns: 1fr 50px 50px;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.28);
+        }
+        .sidebar-title {
+            flex: 1;
+            text-align: left;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            color: var(--ind-primary);
+        }
+        .sidebar-head-metrics {
+            display: grid;
+            grid-template-columns: 50px 50px;
+            gap: 6px;
+            align-items: center;
+            justify-items: center;
+            grid-column: 2 / 4;
+        }
+        .sidebar-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 999px;
+            font-size: 1.05em;
+            font-weight: 900;
+            background: #111;
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.42);
+        }
+        .sidebar-icon.token { color: #ffd740; }
+        .sidebar-icon.note { color: var(--ind-primary); }
+        .sb-row { 
+            display: grid; 
+            grid-template-columns: 1fr 50px 50px; 
+            gap: 6px; 
+            padding: 6px; 
+            border-bottom: 1px solid #444; 
+            align-items: center; 
+            font-size: 0.9em; 
+        }
+        .sb-row.active { background: rgba(0, 229, 255, 0.15); border: 1px solid var(--ind-primary); border-radius: 4px; }
+        .sb-name { text-align: left; font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .sb-value { text-align: center; font-weight: 900; }
+        #sidebar-stats.sidebar-expanded .sidebar-head {
+            grid-template-columns: minmax(280px, 1fr) 130px 130px;
+            gap: 14px;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+        }
+        #sidebar-stats.sidebar-expanded .sidebar-head-metrics {
+            grid-template-columns: 130px 130px;
+            gap: 14px;
+        }
+        #sidebar-stats.sidebar-expanded .sidebar-title {
+            font-size: 1.8em;
+            letter-spacing: 0.12em;
+        }
+        #sidebar-stats.sidebar-expanded .sidebar-icon {
+            width: 58px;
+            height: 58px;
+            font-size: 1.9em;
+        }
+        #sidebar-stats.sidebar-expanded .sb-row {
+            grid-template-columns: minmax(280px, 1fr) 130px 130px;
+            gap: 14px;
+            font-size: 1.75em;
+            padding: 16px 18px;
+        }
+        #sidebar-stats.sidebar-expanded .sb-name {
+            font-size: 1em;
+            letter-spacing: 0.04em;
+        }
+        #sidebar-stats.sidebar-expanded .sb-value {
+            font-size: 1.08em;
+        }
+
+        /* --- COLUNA DIREITA: AREA DO JOGO --- */
+        .game-board-area {
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            width: 100%; 
+            min-width: 0;
+            gap: 18px;
+        }
+
+        #timeline { display: flex; gap: 8px; margin: 0 0 2px 0; padding: 12px 15px; min-height: 132px; align-items: center; overflow-x: auto; border-top: 4px solid var(--ind-metal); border-bottom: 4px solid var(--ind-metal); background: rgba(0,0,0,0.3); }
+        
+        .card { 
+            background: linear-gradient(to bottom right, var(--ind-metal), var(--ind-metal-dark)); 
+            color: var(--ind-text); padding: 5px; border: 2px solid #111; border-top: 2px solid var(--ind-metal-light); 
+            min-width: 120px; max-width: 120px; height: 100px; font-weight: bold; position: relative; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.6); flex-shrink: 0; text-shadow: 1px 1px 1px black; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .card .ano { font-size: 2.8em; color: var(--ind-primary); font-weight: 900; line-height: 1; }
+        .card.card-inicial { border: 3px dashed var(--ind-primary-dark); background: linear-gradient(to bottom right, #2c2c2c, #1a1a1a); cursor: default; }
+        .card[data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 12px);
+            transform: translateX(-50%) translateY(6px);
+            min-width: 170px;
+            max-width: 240px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: rgba(6,10,14,0.96);
+            border: 1px solid rgba(0,229,255,0.26);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.38);
+            color: #e8f4f7;
+            font-size: 0.72em;
+            line-height: 1.35;
+            text-align: center;
+            white-space: normal;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.16s ease, transform 0.16s ease;
+            z-index: 20;
+        }
+        .card[data-tooltip]::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 4px);
+            transform: translateX(-50%) translateY(6px);
+            border: 8px solid transparent;
+            border-top-color: rgba(6,10,14,0.96);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.16s ease, transform 0.16s ease;
+            z-index: 20;
+        }
+        .card[data-tooltip]:hover::after,
+        .card[data-tooltip]:hover::before {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .slot { min-width: 50px; height: 100px; background: rgba(0,0,0,0.2); cursor: pointer; border: 3px dashed var(--ind-metal); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.8em; color: var(--ind-metal); flex-shrink: 0; transition: all 0.2s; position: relative; overflow: hidden; }
+        .slot:hover { border-color: var(--ind-primary); color: var(--ind-primary); }
+        .slot.selected-owner { border: 3px solid black; color: black; opacity: 1 !important; box-shadow: 0 0 15px white; }
+        .slot.selected-challenger { border: 3px solid black; color: black; opacity: 1 !important; box-shadow: 0 0 15px white; }
+        .slot.result-win {
+            color: #39ff14;
+            background: rgba(20, 56, 24, 0.36);
+        }
+        .slot.result-lose {
+            color: #ff8f9f;
+            background: rgba(88, 12, 24, 0.28);
+        }
+        .slot-marker {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 999px;
+            font-size: 1.15em;
+            font-weight: 900;
+            line-height: 1;
+            background: rgba(0,0,0,0.38);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .slot.result-win .slot-marker { color: #39ff14; }
+        .slot.result-lose .slot-marker { color: #ff8f9f; }
+        
+        .vinyl-wrapper { width: 160px; height: 160px; margin: 0 auto 15px auto; border-radius: 50%; background: #111; border: 4px solid var(--ind-metal); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .vinyl-label { width: 40%; height: 40%; border-radius: 50%; background: radial-gradient(var(--ind-primary), var(--ind-primary-dark)); border: 3px solid black; display: flex; align-items: center; justify-content: center; font-size: 1.5em; font-weight: 900; color: black; }
+        .spinning { animation: spinVinyl 4s linear infinite; }
+        @keyframes spinVinyl { 100% { transform: rotate(360deg); } }
+
+
+        .premium-shell {
+            position: relative;
+            width: 100%;
+            min-height: 404px;
+            padding: 20px 22px;
+            border-radius: 30px;
+            background:
+                radial-gradient(circle at top left, rgba(255,255,255,0.14), transparent 24%),
+                linear-gradient(145deg, #6d7880 0%, #454f57 38%, #2a3239 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 30px 70px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.16);
+            overflow: hidden;
+        }
+        .premium-shell::before {
+            content: '';
+            position: absolute;
+            inset: 14px;
+            border-radius: 22px;
+            border: 1px solid rgba(255,255,255,0.05);
+            pointer-events: none;
+        }
+        .premium-shell::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(255,255,255,0.09), transparent 20%, transparent 72%, rgba(255,255,255,0.05));
+            pointer-events: none;
+        }
+        .premium-turntable {
+            position: relative;
+            width: min(100%, 760px);
+            min-height: 352px;
+            margin: 0 auto;
+            padding: 18px 22px 20px;
+            border-radius: 24px;
+            background:
+                radial-gradient(circle at 24% 18%, rgba(255,255,255,0.12), transparent 17%),
+                linear-gradient(160deg, #18242d 0%, #0d141a 100%);
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.58), 0 22px 40px rgba(0,0,0,0.32);
+            overflow: hidden;
+        }
+        .premium-turntable::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            right: 30px;
+            top: 18px;
+            height: 8px;
+            border-radius: 999px;
+            background: linear-gradient(to right, rgba(255,255,255,0.14), rgba(255,255,255,0.02));
+            opacity: 0.7;
+        }
+        .deck-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.24em;
+            font-size: 0.75em;
+            color: #bfd6df;
+        }
+        .deck-brand {
+            font-weight: 900;
+            color: #f3f6f8;
+        }
+        .deck-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(6, 10, 15, 0.72);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.45);
+        }
+        .deck-status-light {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #54717d;
+            transition: all 0.3s ease;
+        }
+        .premium-turntable[data-state="playing"] .deck-status-light {
+            background: #52ff9d;
+            box-shadow: 0 0 10px #52ff9d;
+        }
+        .premium-turntable[data-state="paused"] .deck-status-light,
+        .premium-turntable[data-state="loading"] .deck-status-light,
+        .premium-turntable[data-state="drop"] .deck-status-light {
+            background: #ffd740;
+            box-shadow: 0 0 10px #ffd740;
+        }
+        .deck-body {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            min-height: 272px;
+        }
+        .platter-zone {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        .platter-base {
+            position: absolute;
+            inset: 18px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #33414a 0 27%, #1e2a31 27% 65%, #0d1216 65% 76%, #4b5c66 76% 78%, #1a242a 78% 100%);
+            box-shadow: inset 0 0 18px rgba(255,255,255,0.08), inset 0 -12px 26px rgba(0,0,0,0.78), 0 18px 20px rgba(0,0,0,0.34);
+        }
+        .platter-base::before {
+            content: '';
+            position: absolute;
+            inset: 18px;
+            border-radius: 50%;
+            border: 1px dashed rgba(255,255,255,0.12);
+        }
+        .platter-base::after {
+            content: '';
+            position: absolute;
+            inset: 112px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #4d5a62, #202b31 70%, #10181d 100%);
+            box-shadow: inset 0 0 8px rgba(255,255,255,0.08), 0 0 0 8px rgba(255,255,255,0.02);
+        }
+        .record-shell {
+            position: absolute;
+            inset: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateY(-150px) rotate(-10deg) scale(0.92);
+            opacity: 0;
+            transition: transform 0.85s cubic-bezier(0.2, 0.85, 0.25, 1), opacity 0.4s ease;
+            will-change: transform;
+        }
+        .premium-turntable.is-ready .record-shell {
+            transform: translateY(-150px) rotate(-10deg) scale(0.92);
+            opacity: 0;
+        }
+        .premium-turntable[data-state="drop"] .record-shell {
+            animation: recordDropVertical 0.72s cubic-bezier(0.2, 0.82, 0.24, 1) both;
+            opacity: 1;
+        }
+        .premium-turntable[data-state="loading"] .record-shell,
+        .premium-turntable[data-state="playing"] .record-shell,
+        .premium-turntable[data-state="paused"] .record-shell {
+            transform: translateX(0) rotate(0deg) scale(1);
+            opacity: 1;
+        }
+        .record {
+            position: relative;
+            width: 244px;
+            height: 244px;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, #080808 0 24%, #030303 24% 72%, #090909 72% 84%, #030303 84% 100%);
+            box-shadow: inset 0 0 16px rgba(255,255,255,0.08), 0 16px 30px rgba(0,0,0,0.46);
+        }
+        .record::before {
+            content: '';
+            position: absolute;
+            inset: 20px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle, transparent 0 28%, rgba(0,0,0,0.98) 28% 37.75%, rgba(128,140,148,0.76) 37.75% 38.35%, transparent 38.35% 100%),
+                repeating-radial-gradient(circle, rgba(255,255,255,0.055) 0 1px, transparent 1px 5px);
+            opacity: 0.28;
+        }
+        .record::after {
+            content: '';
+            position: absolute;
+            inset: 83px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #020202 0 8%, #0e1418 8% 12%, #4ff1ff 12% 58%, #00b8d4 74%, #021a20 100%);
+            border: 5px solid #101820;
+            box-shadow: inset 0 0 12px rgba(255,255,255,0.15);
+        }
+        .record-highlight {
+            position: absolute;
+            inset: 24px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, rgba(255,255,255,0.2), transparent 30%, transparent 58%, rgba(255,255,255,0.08));
+            mix-blend-mode: screen;
+            opacity: 0.55;
+        }
+        .premium-turntable[data-state="playing"] .record,
+        .premium-turntable[data-state="loading"] .record {
+            animation: premiumSpin 2.8s linear infinite;
+        }
+        .premium-turntable[data-state="paused"] .record {
+            animation-play-state: paused;
+        }
+        @keyframes premiumSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes recordDropVertical {
+            0% { transform: translateY(-190px) rotate(-10deg) scale(0.9); opacity: 0; }
+            62% { transform: translateY(8px) rotate(2deg) scale(1.02); opacity: 1; }
+            100% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+        }
+        .tonearm {
+            position: absolute;
+            right: 4px;
+            top: 24px;
+            width: 236px;
+            height: 196px;
+            transform-origin: 86% 14%;
+            transform: rotate(var(--tonearm-angle, -88deg));
+            transition: transform 0.18s linear;
+            z-index: 4;
+        }
+        .tonearm-base {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #8ca2ad, #30424d 70%, #10191f 100%);
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.18), 0 6px 14px rgba(0,0,0,0.42);
+        }
+        .tonearm-bar {
+            position: absolute;
+            right: 18px;
+            top: 15px;
+            width: 148px;
+            height: 11px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #4f5d66 0 18%, #d7e1e8 18% 30%, #6b7d88 45%, #2f3e49 100%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.42), 0 2px 8px rgba(0,0,0,0.45);
+            overflow: hidden;
+        }
+        .tonearm-head {
+            display: none;
+        }
+        .premium-turntable[data-state="loading"] .tonearm {
+            animation: tonearmSettle 0.92s cubic-bezier(0.2, 0.82, 0.28, 1) both;
+        }
+        .premium-turntable[data-state="playing"] .tonearm,
+        .premium-turntable[data-state="paused"] .tonearm,
+        .premium-turntable[data-state="reveal"] .tonearm {
+            animation: none;
+            transform: rotate(var(--tonearm-angle, -8deg));
+        }
+        @keyframes tonearmSettle {
+            0% { transform: rotate(-88deg); }
+            74% { transform: rotate(-1deg); }
+            100% { transform: rotate(-8deg); }
+        }
+        .deck-controls {
+            width: 178px;
+            align-self: stretch;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 12px;
+            position: relative;
+            z-index: 6;
+        }
+        .deck-meter {
+            padding: 12px 14px 14px;
+            border-radius: 18px;
+            background: rgba(6, 10, 15, 0.72);
+            border: 1px solid rgba(255,255,255,0.08);
+            text-align: left;
+            box-shadow: inset 0 0 12px rgba(0,0,0,0.55), 0 10px 18px rgba(0,0,0,0.18);
+        }
+        .deck-meter-label {
+            font-size: 0.68em;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: #7f97a3;
+            margin-bottom: 10px;
+        }
+        .deck-vu {
+            position: relative;
+            height: 66px;
+            padding: 8px 10px 10px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            border-radius: 14px;
+            background: linear-gradient(180deg, rgba(8,16,21,0.98), rgba(5,10,14,0.92));
+            border: 1px solid rgba(255,255,255,0.06);
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), inset 0 0 16px rgba(0,0,0,0.55);
+        }
+        .deck-vu::before {
+            content: '';
+            position: absolute;
+            inset: 8px 10px;
+            border-radius: 10px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent 36%);
+            opacity: 0.55;
+            pointer-events: none;
+        }
+        .deck-vu::after {
+            content: '';
+            position: absolute;
+            inset: 9px 50% 9px calc(50% - 1px);
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02), rgba(255,255,255,0.08));
+            opacity: 0.45;
+            pointer-events: none;
+        }
+        .vu-gauge {
+            position: relative;
+            height: 100%;
+            border-radius: 10px;
+            background:
+                radial-gradient(circle at 50% 100%, rgba(0,229,255,0.12), transparent 45%),
+                linear-gradient(180deg, rgba(255,255,255,0.04), transparent 24%),
+                linear-gradient(180deg, rgba(8, 14, 18, 0.98), rgba(6, 11, 15, 0.92));
+            border: 1px solid rgba(255,255,255,0.05);
+            overflow: hidden;
+            box-shadow: inset 0 0 12px rgba(0,0,0,0.42);
+        }
+        .vu-gauge::before {
+            content: '';
+            position: absolute;
+            left: 12%;
+            right: 12%;
+            bottom: 13px;
+            height: 1px;
+            background: rgba(201, 226, 236, 0.18);
+        }
+        .vu-gauge::after {
+            content: '';
+            position: absolute;
+            left: 10%;
+            right: 10%;
+            bottom: 8px;
+            height: 28px;
+            border-top: 1px solid rgba(164, 192, 204, 0.2);
+            border-radius: 999px 999px 0 0;
+            opacity: 0.65;
+        }
+        .vu-scale {
+            position: absolute;
+            inset: 8px 10px 10px;
+            pointer-events: none;
+        }
+        .vu-scale-mark {
+            position: absolute;
+            bottom: 12px;
+            width: 1px;
+            height: 10px;
+            background: rgba(195, 214, 222, 0.22);
+            transform-origin: bottom center;
+        }
+        .vu-scale-mark:nth-child(1) { left: 17%; transform: rotate(-46deg); }
+        .vu-scale-mark:nth-child(2) { left: 31%; transform: rotate(-28deg); }
+        .vu-scale-mark:nth-child(3) { left: 50%; transform: rotate(0deg); height: 12px; }
+        .vu-scale-mark:nth-child(4) { left: 69%; transform: rotate(28deg); }
+        .vu-scale-mark:nth-child(5) { left: 83%; transform: rotate(46deg); }
+        .vu-needle {
+            position: absolute;
+            left: 50%;
+            bottom: 13px;
+            width: 2px;
+            height: 30px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, #e7fbff 0%, #69f4ff 45%, #10b4db 100%);
+            box-shadow: 0 0 10px rgba(0,229,255,0.32);
+            transform-origin: bottom center;
+            transform: translateX(-50%) rotate(-46deg);
+        }
+        .vu-needle::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -3px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #9fffff, #00d7ff 60%, #06222d 100%);
+            box-shadow: 0 0 8px rgba(0,229,255,0.36);
+            transform: translateX(-50%);
+        }
+        .vu-gauge.left .vu-needle { animation-delay: -0.35s; }
+        .vu-gauge.right .vu-needle { animation-delay: -0.72s; }
+        .premium-turntable[data-state="idle"] .vu-needle {
+            animation: vuIdle 3.4s ease-in-out infinite;
+            opacity: 0.55;
+        }
+        .premium-turntable[data-state="drop"] .vu-needle,
+        .premium-turntable[data-state="loading"] .vu-needle {
+            animation: vuLoading 1.15s ease-in-out infinite;
+            opacity: 0.82;
+        }
+        .premium-turntable[data-state="playing"] .vu-needle {
+            animation: vuLive 0.9s cubic-bezier(0.44, 0.08, 0.56, 0.96) infinite;
+            opacity: 1;
+        }
+        .premium-turntable[data-state="paused"] .vu-needle,
+        .premium-turntable[data-state="reveal"] .vu-needle {
+            animation: none;
+            transform: translateX(-50%) rotate(-34deg);
+            opacity: 0.58;
+        }
+        @keyframes vuIdle {
+            0%, 100% { transform: translateX(-50%) rotate(-46deg); }
+            50% { transform: translateX(-50%) rotate(-34deg); }
+        }
+        @keyframes vuLoading {
+            0%, 100% { transform: translateX(-50%) rotate(-44deg); }
+            35% { transform: translateX(-50%) rotate(4deg); }
+            60% { transform: translateX(-50%) rotate(-12deg); }
+            82% { transform: translateX(-50%) rotate(14deg); }
+        }
+        @keyframes vuLive {
+            0%, 100% { transform: translateX(-50%) rotate(-38deg); }
+            16% { transform: translateX(-50%) rotate(18deg); }
+            34% { transform: translateX(-50%) rotate(-6deg); }
+            52% { transform: translateX(-50%) rotate(26deg); }
+            72% { transform: translateX(-50%) rotate(2deg); }
+            88% { transform: translateX(-50%) rotate(20deg); }
+        }
+        .deck-control-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            position: relative;
+            z-index: 6;
+        }
+        .deck-action-btn {
+            flex: 1;
+            min-height: 58px;
+            padding: 10px 14px;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: linear-gradient(180deg, rgba(24,30,36,0.98), rgba(9,13,17,0.92));
+            color: rgba(223,236,244,0.9);
+            box-shadow: inset 0 0 14px rgba(0,0,0,0.55), 0 10px 18px rgba(0,0,0,0.18);
+            cursor: pointer;
+            position: relative;
+            z-index: 7;
+            transition: transform 0.18s ease, border-color 0.18s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .deck-action-btn:hover:not(:disabled) {
+            background: linear-gradient(180deg, rgba(24,30,36,0.98), rgba(9,13,17,0.92)) !important;
+            color: rgba(223,236,244,0.9) !important;
+            border-color: rgba(255,255,255,0.16) !important;
+            box-shadow: inset 0 0 14px rgba(0,0,0,0.55), 0 10px 18px rgba(0,0,0,0.18) !important;
+            text-shadow: none !important;
+        }
+        .deck-action-btn:active:not(:disabled) {
+            transform: translateY(1px) scale(0.99);
+        }
+        .deck-action-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        .transport-icon-group {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .transport-light {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            color: rgba(220, 230, 238, 0.4);
+            transition: color 0.18s ease, filter 0.18s ease, opacity 0.18s ease;
+            opacity: 0.72;
+        }
+        .transport-light.is-on {
+            color: #7ffff4;
+            filter: drop-shadow(0 0 6px rgba(0,229,255,0.7));
+            opacity: 1;
+        }
+        .deck-action-btn.is-primary .transport-light.is-on {
+            color: #7ffff4;
+            filter: drop-shadow(0 0 7px rgba(0,229,255,0.78));
+        }
+        .transport-icon-play {
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 16px solid currentColor;
+            margin-left: 2px;
+        }
+        .transport-icon-pause {
+            width: 14px;
+            height: 20px;
+            position: relative;
+        }
+        .transport-icon-pause::before,
+        .transport-icon-pause::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 3px;
+            height: 20px;
+            border-radius: 2px;
+            background: currentColor;
+        }
+        .transport-icon-pause::before { left: 2px; }
+        .transport-icon-pause::after { right: 2px; }
+        .transport-icon-skip {
+            width: 22px;
+            height: 18px;
+            position: relative;
+        }
+        .transport-icon-skip::before,
+        .transport-icon-skip::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-top: 9px solid transparent;
+            border-bottom: 9px solid transparent;
+            border-left: 8px solid currentColor;
+        }
+        .transport-icon-skip::before { left: 0; }
+        .transport-icon-skip::after { left: 7px; }
+        .transport-icon-skip-bar {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 3px;
+            height: 18px;
+            border-radius: 2px;
+            background: currentColor;
+        }
+        .transport-label {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 0.68em;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(223,236,244,0.6);
+        }
+        .premium-under-actions {
+            width: 100%;
+            margin: 14px 0 4px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .turntable-copy {
+            margin-top: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            text-align: left;
+        }
+        .turntable-copy strong {
+            display: block;
+            font-size: 1.05em;
+            color: #f3f6f8;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 6px;
+        }
+        .turntable-copy span {
+            color: #9fb5be;
+            font-size: 0.92em;
+        }
+        .premium-hint {
+            padding: 8px 0;
+            color: #9af4ff;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            font-size: 0.78em;
+            font-weight: 700;
+            opacity: 0.78;
+        }
+        .premium-turntable[data-state="paused"] .premium-hint {
+            color: #ffe38b;
+        }
+        .deck-action-genre {
+            min-height: 48px;
+            font-size: 0.78em;
+            letter-spacing: 0.06em;
+            line-height: 1.25;
+            background: linear-gradient(to bottom, #aa00ff, #7200ca) !important;
+            color: #f8f2ff !important;
+            border-color: #4a0072 !important;
+            box-shadow: 0 0 10px rgba(213,0,249,0.22);
+        }
+        .deck-action-genre:hover:not(:disabled) {
+            background: var(--ind-neon-purple) !important;
+            box-shadow: 0 0 18px rgba(213,0,249,0.42) !important;
+        }
+        .deck-action-genre .deck-action-sub {
+            display: block;
+            font-size: 0.86em;
+            letter-spacing: 0.04em;
+            opacity: 0.92;
+        }
+        .premium-under-actions.mystery-actions button {
+            min-width: 170px;
+        }
+
+        .dialog-text {
+            line-height: 1.55;
+            color: #d8e5e9;
+            white-space: pre-line;
+        }
+        .dialog-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+        #modal-dialog {
+            z-index: 7100;
+        }
+        .card-revelado {
+            background: linear-gradient(180deg, rgba(50,66,76,0.98), rgba(22,29,35,0.98));
+            border: 1px solid rgba(0,229,255,0.42);
+            border-radius: 22px;
+            padding: 18px;
+            width: 100%;
+            box-shadow: 0 18px 34px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.08);
+            margin: 0;
+        }
+        .reveal-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            width: 100%;
+            max-width: 620px;
+            margin: 0 auto;
+            animation: revealRise 0.35s ease;
+        }
+        @media (min-width: 768px) {
+            .reveal-layout {
+                flex-direction: row;
+                align-items: stretch;
+            }
+        }
+        .bonus-section {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            background: linear-gradient(180deg, rgba(28,36,42,0.98), rgba(14,18,22,0.98));
+            border: 1px solid rgba(0,229,255,0.32);
+            border-radius: 22px;
+            padding: 18px;
+            flex: 2;
+            box-shadow: 0 14px 26px rgba(0,0,0,0.28);
+        }
+        .action-container button,
+        .premium-under-actions button {
+            min-width: 160px;
+        }
+        .premium-under-actions button {
+            margin: 0;
+            min-height: 46px;
+            border-radius: 14px;
+            padding: 10px 20px;
+            letter-spacing: 0.08em;
+            box-shadow: 0 10px 18px rgba(0,0,0,0.2);
+        }
+        .premium-under-actions button:disabled {
+            background: linear-gradient(180deg, rgba(58,58,58,0.92), rgba(40,40,40,0.92)) !important;
+            color: rgba(180,180,180,0.55) !important;
+            border-color: rgba(75,75,75,0.95) !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+            opacity: 1 !important;
+        }
+        .premium-under-actions #btn-revelar:not(:disabled) {
+            box-shadow: 0 0 18px rgba(0,229,255,0.18), 0 10px 18px rgba(0,0,0,0.22);
+        }
+        .premium-under-actions #btn-desfazer:not(:disabled) {
+            border-color: rgba(255,255,255,0.12);
+        }
+        @keyframes revealRise {
+            from { opacity: 0; transform: translateY(12px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @media (min-width: 1200px) {
+            .premium-turntable { width: min(100%, 800px); min-height: 362px; }
+            .deck-controls { width: 196px; }
+            .turntable-copy { margin-top: 20px; }
+        }
+        @media (max-width: 900px) {
+            .premium-shell { padding: 16px; min-height: 0; }
+            .premium-turntable { padding: 14px; }
+            .deck-body { flex-direction: column; }
+            .platter-zone { width: 100%; max-width: 320px; height: 280px; }
+            .tonearm { right: -8px; top: 8px; width: 214px; height: 176px; transform-origin: 86% 14%; }
+            .tonearm-bar { width: 138px; }
+            .deck-controls { width: 100%; align-items: stretch; }
+            .deck-meter { flex: 1; }
+            .deck-control-row { width: 100%; }
+            .turntable-copy { justify-content: center; text-align: center; }
+        }
+        /* --- INFO BAR --- */
+        #info-bar { 
+            border: var(--border-style); background: var(--ind-metal-dark); 
+            padding: 8px 15px; margin-bottom: 15px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            flex-wrap: wrap; gap: 10px; box-shadow: var(--ind-shadow); 
+        }
+        
+        .info-left { flex: 1; display: flex; flex-direction: row; align-items: center; gap: 8px; min-width: 150px; }
+        .info-zoom { display: flex; justify-content: center; margin: 0 15px; }
+        .info-center { flex: 2; display: flex; justify-content: center; gap: 15px; min-width: 200px; }
+        .info-right { flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 150px; }
+
+        #nome-jogador-atual { font-size: 1.2em; color: var(--ind-primary); font-weight: 900; background: #111; padding: 3px 10px; border: 2px solid var(--ind-metal); text-transform: uppercase; display: inline-block; }
+        
+        .stats-box { 
+            background: #111; border: 2px solid var(--ind-metal); 
+            padding: 5px 15px; font-weight: 900; color: var(--ind-primary); 
+            display: flex; align-items: center; gap: 8px; font-size: 1.4em; 
+            border-radius: 6px; box-shadow: inset 0 0 10px black, 0 0 8px rgba(0, 229, 255, 0.2);
+            text-shadow: 1px 1px 2px black;
+        }
+
+        /* --- NOVO LAYOUT DA AREA INFERIOR (PLACAR + MESA) --- */
+        .game-layout-bottom {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            width: 100%;
+            margin-top: 6px;
+            align-items: flex-start;
+        }
+        @media (max-width: 900px) {
+            .game-layout-bottom { flex-direction: column-reverse; align-items: center; }
+        }
+
+        /* --- MESA DO JOGO (Centro/Direita) --- */
+        #mesa-jogo {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            min-width: 0;
+            gap: 10px;
+        }
+        
+        .modal-overlay { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); align-items: center; justify-content: center; }
+        #modal-placar { z-index: 7000; }
+        .modal-box { 
+            background-color: var(--ind-metal-dark); border: 4px solid var(--ind-metal); 
+            padding: 25px; width: 90%; max-width: 500px; text-align: center; 
+            max-height: calc(85vh / var(--zoom-level, 1)); 
+            overflow-y: auto; 
+        }
+        #modal-placar .modal-box {
+            width: min(1100px, 96vw) !important;
+            max-width: none !important;
+            padding: 16px 20px 18px;
+            background:
+                radial-gradient(circle at top left, rgba(255,255,255,0.08), transparent 24%),
+                linear-gradient(180deg, rgba(45,58,66,0.98), rgba(23,30,35,0.98));
+            box-shadow: 0 20px 50px rgba(0,0,0,0.42);
+            max-height: calc(94vh / var(--zoom-level, 1));
+        }
+        .placar-modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        .placar-modal-head h2 {
+            margin: 0;
+            color: var(--ind-primary);
+            letter-spacing: 0.08em;
+            font-size: 1.55em;
+        }
+        .placar-modal-lista {
+            display: grid;
+            gap: 8px;
+        }
+        .placar-modal-row {
+            padding: 10px 12px 11px;
+            border-radius: 10px;
+            background: rgba(10,14,18,0.78);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+        }
+        .placar-modal-topo {
+            display: grid;
+            grid-template-columns: minmax(220px, 1fr) 120px;
+            gap: 14px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .placar-modal-nome {
+            text-align: left;
+            font-size: 1.15em;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+        }
+        .placar-modal-pontos {
+            text-align: right;
+            font-size: 1.05em;
+            font-weight: 900;
+            color: #f0f6f8;
+        }
+        .placar-modal-cartas {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding: 4px 2px 0;
+        }
+        .placar-modal-carta {
+            min-width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 0.88em;
+            font-weight: 900;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.22);
+        }
+        .placar-modal-carta.inicial {
+            background: #333;
+            color: #aaa;
+        }
+        .placar-modal-carta.timeline {
+            color: #041015;
+        }
+        
+        .tag-genero { font-size: 0.8em; background: #111; color: #aaa; padding: 2px 6px; border-radius: 4px; border: 1px solid #444; margin-top: 5px; display: inline-block; }
+
+        /* --- INTRO CINEMATICA --- */
+        #intro-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 6000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background:
+                radial-gradient(circle at 50% 24%, rgba(82, 104, 117, 0.28), transparent 28%),
+                radial-gradient(circle at 50% 50%, rgba(0,229,255,0.08), transparent 36%),
+                linear-gradient(180deg, #0f1216 0%, #06080b 100%);
+            transition: opacity 0.85s ease, visibility 0.85s ease;
+        }
+        #intro-overlay.is-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .intro-shell {
+            width: min(92vw, 980px);
+            padding: 26px;
+            border-radius: 36px;
+            background:
+                radial-gradient(circle at top left, rgba(255,255,255,0.14), transparent 24%),
+                linear-gradient(145deg, #6b767f 0%, #434d55 36%, #252d34 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.62), inset 0 1px 0 rgba(255,255,255,0.16);
+            overflow: hidden;
+            position: relative;
+        }
+        .intro-shell::after {
+            content: '';
+            position: absolute;
+            inset: -12% -10%;
+            background:
+                radial-gradient(circle at 50% 36%, rgba(0,229,255,0.12), transparent 28%),
+                radial-gradient(circle at 22% 16%, rgba(255,255,255,0.08), transparent 20%);
+            mix-blend-mode: screen;
+            opacity: 0.72;
+            pointer-events: none;
+        }
+        .intro-shell::before {
+            content: '';
+            position: absolute;
+            inset: 14px;
+            border-radius: 26px;
+            border: 1px solid rgba(255,255,255,0.05);
+            pointer-events: none;
+        }
+        .intro-turntable {
+            position: relative;
+            min-height: 478px;
+            padding: 22px 26px 24px;
+            border-radius: 28px;
+            background:
+                radial-gradient(circle at 25% 20%, rgba(255,255,255,0.12), transparent 18%),
+                linear-gradient(160deg, #18242d 0%, #0b1218 100%);
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.58), 0 22px 50px rgba(0,0,0,0.34);
+            overflow: hidden;
+        }
+        .intro-turntable::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 50% 44%, rgba(0,229,255,0.12), transparent 24%),
+                linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.06) 18%, transparent 34%);
+            opacity: 0.68;
+            pointer-events: none;
+        }
+        .intro-turntable::before {
+            content: '';
+            position: absolute;
+            left: 34px;
+            right: 34px;
+            top: 18px;
+            height: 8px;
+            border-radius: 999px;
+            background: linear-gradient(to right, rgba(255,255,255,0.14), rgba(255,255,255,0.02));
+            opacity: 0.7;
+        }
+        .intro-turntable.is-standby .intro-platter-zone {
+            cursor: pointer;
+        }
+        .intro-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.28em;
+            font-size: 0.78em;
+            color: #bfd6df;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 2;
+        }
+        .intro-brand {
+            font-weight: 900;
+            color: #f3f6f8;
+        }
+        .intro-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 200px;
+            padding: 10px 14px;
+            border-radius: 18px;
+            background:
+                linear-gradient(180deg, rgba(14, 20, 26, 0.96), rgba(5, 9, 13, 0.92));
+            border: 1px solid rgba(114, 152, 171, 0.22);
+            box-shadow: inset 0 0 18px rgba(0,0,0,0.58), 0 10px 20px rgba(0,0,0,0.22);
+        }
+        .intro-status-light {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: #63808d;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+            flex: 0 0 auto;
+        }
+        .intro-status-readout {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+            text-align: left;
+        }
+        .intro-status-main {
+            display: block;
+            color: #d6edf3;
+            font-size: 0.98em;
+            letter-spacing: 0.24em;
+            line-height: 1;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(0,229,255,0.18);
+        }
+        .intro-status-sub {
+            display: block;
+            color: rgba(159, 181, 190, 0.8);
+            font-size: 0.52em;
+            letter-spacing: 0.18em;
+            line-height: 1;
+        }
+        .intro-turntable[data-intro-stage="drop"] .intro-status-light,
+        .intro-turntable[data-intro-stage="spin"] .intro-status-light,
+        .intro-turntable[data-intro-stage="arm"] .intro-status-light {
+            background: #00e5ff;
+            box-shadow: 0 0 12px rgba(0,229,255,0.85);
+        }
+        .intro-turntable[data-intro-stage="done"] .intro-status-light {
+            background: #52ff9d;
+            box-shadow: 0 0 12px rgba(82,255,157,0.85);
+        }
+        .intro-turntable[data-intro-stage="done"] .intro-status {
+            border-color: rgba(82,255,157,0.22);
+            box-shadow: inset 0 0 18px rgba(0,0,0,0.58), 0 0 20px rgba(82,255,157,0.14);
+        }
+        .intro-turntable[data-intro-stage="standby"] .intro-status-light {
+            background: #00e5ff;
+            box-shadow: 0 0 12px rgba(0,229,255,0.48);
+        }
+        .intro-turntable[data-intro-stage="standby"] .intro-status {
+            border-color: rgba(0,229,255,0.16);
+            box-shadow: inset 0 0 18px rgba(0,0,0,0.58), 0 0 20px rgba(0,229,255,0.08);
+        }
+        .intro-body {
+            position: relative;
+            min-height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .intro-acrylic-lid {
+            position: absolute;
+            inset: 10px 30px 8px;
+            border-radius: 34px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.008));
+            border: 1px solid rgba(198, 226, 242, 0.12);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.14),
+                inset 0 -8px 18px rgba(0,0,0,0.04),
+                0 0 0 1px rgba(255,255,255,0.04);
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0.56;
+            overflow: hidden;
+        }
+        .intro-acrylic-lid::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(118deg, transparent 6%, rgba(255,255,255,0.14) 24%, transparent 36%),
+                linear-gradient(180deg, rgba(255,255,255,0.04), transparent 30%, transparent 72%, rgba(255,255,255,0.02));
+            opacity: 0.58;
+            mix-blend-mode: screen;
+        }
+        .intro-acrylic-lid::after {
+            content: '';
+            position: absolute;
+            left: -12%;
+            top: -18%;
+            width: 54%;
+            height: 150%;
+            background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.34) 48%, transparent 78%);
+            transform: rotate(12deg) translateX(-26%);
+            opacity: 0;
+        }
+        .intro-turntable[data-intro-stage="drop"] .intro-acrylic-lid::after,
+        .intro-turntable[data-intro-stage="spin"] .intro-acrylic-lid::after,
+        .intro-turntable[data-intro-stage="arm"] .intro-acrylic-lid::after {
+            animation: introLidGleam 2.2s ease-in-out infinite;
+            opacity: 0.38;
+        }
+        .intro-platter-zone {
+            position: relative;
+            width: min(100%, 560px);
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .intro-platter-zone::before {
+            content: '';
+            position: absolute;
+            inset: 8%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,229,255,0.18) 0%, rgba(0,229,255,0.05) 42%, transparent 68%);
+            filter: blur(22px);
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        .intro-platter-zone::after {
+            content: '';
+            position: absolute;
+            inset: 2%;
+            border-radius: 50%;
+            background: linear-gradient(118deg, transparent 8%, rgba(255,255,255,0.22) 30%, transparent 46%);
+            transform: rotate(-18deg) translateX(-42%);
+            opacity: 0;
+            mix-blend-mode: screen;
+            pointer-events: none;
+        }
+        .intro-turntable[data-intro-stage="drop"] .intro-platter-zone::after,
+        .intro-turntable[data-intro-stage="spin"] .intro-platter-zone::after,
+        .intro-turntable[data-intro-stage="arm"] .intro-platter-zone::after {
+            animation: introLightSweep 1.85s ease-in-out infinite;
+            opacity: 0.7;
+        }
+        .intro-platter-base {
+            position: absolute;
+            inset: 22px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #33414a 0 27%, #1e2a31 27% 65%, #0d1216 65% 76%, #4b5c66 76% 78%, #1a242a 78% 100%);
+            box-shadow: inset 0 0 24px rgba(255,255,255,0.08), inset 0 -16px 28px rgba(0,0,0,0.78), 0 18px 24px rgba(0,0,0,0.34);
+        }
+        .intro-platter-base::before {
+            content: '';
+            position: absolute;
+            inset: 22px;
+            border-radius: 50%;
+            border: 1px dashed rgba(255,255,255,0.12);
+        }
+        .intro-platter-base::after {
+            content: '';
+            position: absolute;
+            inset: 150px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #4d5a62, #202b31 70%, #10181d 100%);
+            box-shadow: inset 0 0 8px rgba(255,255,255,0.08), 0 0 0 10px rgba(255,255,255,0.02);
+        }
+        .intro-record-shell {
+            position: absolute;
+            inset: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(-260px) scale(0.82);
+            will-change: transform, opacity;
+        }
+        .intro-turntable[data-intro-stage="standby"] .intro-record-shell {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .intro-turntable[data-intro-stage="drop"] .intro-record-shell {
+            opacity: 1;
+            animation: introRecordDrop 0.82s cubic-bezier(0.2, 0.84, 0.24, 1) both;
+        }
+        .intro-turntable[data-intro-stage="spin"] .intro-record-shell,
+        .intro-turntable[data-intro-stage="arm"] .intro-record-shell,
+        .intro-turntable[data-intro-stage="done"] .intro-record-shell {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .intro-record-rotor {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .intro-record-trigger {
+            position: relative;
+            width: min(100%, 428px);
+            aspect-ratio: 1 / 1;
+            border: 0;
+            padding: 0;
+            margin: 0;
+            border-radius: 50%;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+        .intro-turntable[data-intro-stage="standby"] .intro-record-trigger:hover .intro-record {
+            box-shadow: inset 0 0 16px rgba(255,255,255,0.08), 0 16px 32px rgba(0,0,0,0.46), 0 0 28px rgba(0,229,255,0.16);
+        }
+        .intro-record-trigger:focus-visible {
+            outline: 2px solid rgba(0,229,255,0.72);
+            outline-offset: 8px;
+        }
+        .intro-record {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, #050505 0 18%, #030303 18% 24%, #040404 24% 50%, #050505 50% 62%, #111111 62% 71%, #040404 71% 100%);
+            box-shadow: inset 0 0 16px rgba(255,255,255,0.08), 0 16px 32px rgba(0,0,0,0.46);
+        }
+        .intro-record::before {
+            content: '';
+            position: absolute;
+            inset: 34px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle, rgba(0,0,0,0.88) 0 46%, transparent 46% 100%),
+                repeating-radial-gradient(circle, rgba(255,255,255,0.07) 0 1px, transparent 1px 6px);
+            opacity: 0.34;
+        }
+        .intro-record-highlight {
+            position: absolute;
+            inset: 28px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, rgba(255,255,255,0.22), transparent 32%, transparent 58%, rgba(255,255,255,0.08));
+            mix-blend-mode: screen;
+            opacity: 0.55;
+        }
+        .intro-record-label-glow {
+            position: absolute;
+            inset: 108px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(114,255,248,0.34), rgba(0,216,241,0.12) 52%, transparent 72%);
+            filter: blur(12px);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .intro-record-label {
+            position: absolute;
+            inset: 120px;
+            border-radius: 50%;
+            border: 8px solid #09161b;
+            background: radial-gradient(circle, #141a1f 0%, #06090c 58%, #000000 100%);
+            box-shadow: inset 0 0 18px rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
+            overflow: hidden;
+        }
+        .intro-record-label::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(130deg, rgba(255,255,255,0.22), transparent 42%, transparent 64%, rgba(255,255,255,0.12));
+            opacity: 0.82;
+            pointer-events: none;
+        }
+        .intro-record-label span {
+            display: block;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 1.42em;
+            line-height: 1.02;
+            letter-spacing: 0.11em;
+            color: #19dfff;
+            font-weight: 1000;
+            opacity: 0.18;
+            filter: brightness(0.52) saturate(0.58);
+            text-shadow: 0 0 4px rgba(0,229,255,0.06);
+            position: relative;
+            z-index: 1;
+            transition: opacity 0.9s ease, filter 0.9s ease, text-shadow 0.9s ease;
+        }
+        .intro-turntable[data-intro-stage="drop"] .intro-record-label span {
+            opacity: 0.36;
+            filter: brightness(0.72) saturate(0.76);
+            text-shadow: 0 0 6px rgba(0,229,255,0.1);
+        }
+        .intro-turntable[data-intro-stage="spin"] .intro-record-label span {
+            opacity: 0.6;
+            filter: brightness(0.92) saturate(0.94);
+            text-shadow: 0 0 8px rgba(0,229,255,0.16), 0 0 16px rgba(0,229,255,0.08);
+        }
+        .intro-turntable[data-intro-stage="arm"] .intro-record-label span {
+            opacity: 0.82;
+            filter: brightness(1.08) saturate(1.04);
+            text-shadow: 0 0 12px rgba(0,229,255,0.24), 0 0 24px rgba(0,229,255,0.1);
+        }
+        .intro-turntable[data-intro-stage="done"] .intro-record-label span {
+            opacity: 1;
+            filter: brightness(1.18) saturate(1.08);
+            text-shadow: 0 0 16px rgba(0,229,255,0.32), 0 0 30px rgba(0,229,255,0.14);
+        }
+        .intro-record-label::after {
+            content: '';
+            position: absolute;
+            inset: 50%;
+            width: 8px;
+            height: 8px;
+            margin-left: -4px;
+            margin-top: -4px;
+            border-radius: 50%;
+            background: rgba(6,21,26,0.28);
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.08);
+        }
+        .intro-turntable[data-intro-stage="done"] .intro-record-label {
+            animation: introLabelFlash 0.8s ease-out 1;
+            box-shadow: inset 0 0 22px rgba(255,255,255,0.26), 0 0 28px rgba(0,229,255,0.18);
+        }
+        .intro-turntable[data-intro-stage="done"] .intro-record-label-glow {
+            animation: introLabelHalo 1.1s ease-out 1;
+        }
+        .intro-tonearm {
+            position: absolute;
+            right: 58px;
+            top: 26px;
+            width: 290px;
+            height: 248px;
+            transform-origin: 86% 14%;
+            transform: rotate(-96deg);
+            z-index: 4;
+        }
+        .intro-tonearm-base {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #8ca2ad, #30424d 70%, #10191f 100%);
+            box-shadow: inset 0 0 14px rgba(255,255,255,0.18), 0 8px 16px rgba(0,0,0,0.42);
+        }
+        .intro-tonearm-bar {
+            position: absolute;
+            right: 24px;
+            top: 22px;
+            width: 234px;
+            height: 14px;
+            border-radius: 999px;
+            background:
+                linear-gradient(90deg, #4f5d66 0 18%, #d7e1e8 18% 30%, #6b7d88 45%, #2f3e49 100%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.42), 0 2px 8px rgba(0,0,0,0.45);
+            overflow: hidden;
+        }
+        .intro-tonearm-bar::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.38) 46%, transparent 68%);
+            transform: translateX(-92%);
+            opacity: 0;
+        }
+        .intro-turntable[data-intro-stage="drop"] .intro-tonearm-bar::after,
+        .intro-turntable[data-intro-stage="spin"] .intro-tonearm-bar::after,
+        .intro-turntable[data-intro-stage="arm"] .intro-tonearm-bar::after {
+            animation: introMetalSheen 1.9s ease-in-out infinite;
+            opacity: 0.78;
+        }
+        .intro-tonearm-head {
+            display: none;
+        }
+        .intro-turntable[data-intro-stage="arm"] .intro-tonearm,
+        .intro-turntable[data-intro-stage="done"] .intro-tonearm {
+            animation: introTonearmSettle 1.08s cubic-bezier(0.18, 0.82, 0.2, 1) forwards;
+        }
+        .intro-loader-panel {
+            margin-top: 14px;
+            min-height: 158px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            opacity: 1;
+            overflow: visible;
+            transform: none;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+        #intro-overlay.show-loader .intro-loader-panel {
+            pointer-events: auto;
+        }
+        .intro-loader-box {
+            width: min(100%, 540px);
+            max-width: 540px;
+            margin: 0 auto;
+            padding: 18px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            border-radius: 20px;
+            background:
+                linear-gradient(180deg, rgba(11,17,23,0.96), rgba(4,8,12,0.94));
+            border: 1px solid rgba(109, 144, 160, 0.18);
+            box-shadow: inset 0 0 18px rgba(0,0,0,0.5), 0 16px 28px rgba(0,0,0,0.24);
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.35s ease, transform 0.35s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .intro-loader-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.07), transparent 26%, transparent 72%, rgba(0,229,255,0.06));
+            pointer-events: none;
+        }
+        .intro-loader-box::after {
+            content: '';
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            top: 12px;
+            height: 3px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(0,229,255,0.22), rgba(255,255,255,0.08), rgba(0,229,255,0.22));
+            pointer-events: none;
+        }
+        #intro-overlay.show-loader .intro-loader-box {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .intro-loader-box strong {
+            display: block;
+            margin: 0;
+            color: #f3f6f8;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            font-size: 0.96em;
+            text-shadow: 0 0 10px rgba(0,229,255,0.12);
+            position: relative;
+            z-index: 1;
+        }
+        .intro-loader-box p {
+            margin: 0;
+            color: #9fb5be;
+            position: relative;
+            z-index: 1;
+        }
+        .intro-file-trigger {
+            display: inline-block;
+            padding: 16px 36px;
+            font-size: 1.12em;
+            cursor: pointer;
+            font-weight: 900;
+            background: linear-gradient(180deg, #20ecff, #06c7e2);
+            color: black;
+            border: 3px solid black;
+            border-radius: 10px;
+            box-shadow: 0 10px 22px rgba(0,229,255,0.18);
+            position: relative;
+            z-index: 1;
+        }
+        .intro-file-trigger:hover {
+            box-shadow: 0 0 20px rgba(0,229,255,0.42), 0 10px 22px rgba(0,229,255,0.18);
+        }
+        .intro-progress-wrap {
+            width: 100%;
+            margin: 0;
+            border: 2px solid #0d1318;
+            border-radius: 999px;
+            height: 18px;
+            background: #091016;
+            overflow: hidden;
+            opacity: 0.28;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+            position: relative;
+            z-index: 1;
+        }
+        .intro-loader-box.is-loading .intro-progress-wrap,
+        .intro-loader-box.is-ready .intro-progress-wrap {
+            opacity: 1;
+            visibility: visible;
+        }
+        .intro-progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--ind-primary), #72fff8);
+            box-shadow: 0 0 14px rgba(0,229,255,0.45);
+            transition: width 0.25s ease;
+        }
+        .intro-loading-msg {
+            width: 100%;
+            min-height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            color: #d9ebf1;
+            position: relative;
+            z-index: 1;
+        }
+        .intro-loader-action {
+            width: 100%;
+            min-height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+        .intro-loader-panel #btn-goto-setup {
+            margin: 0;
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+        .intro-loader-box.is-ready #btn-goto-setup {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+        }
+        @keyframes introRecordDrop {
+            0% { transform: translateY(-280px) scale(0.82); opacity: 0; }
+            70% { transform: translateY(10px) scale(1.02); opacity: 1; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        @keyframes introLightSweep {
+            0% { transform: rotate(-18deg) translateX(-42%); opacity: 0; }
+            18% { opacity: 0.74; }
+            50% { transform: rotate(-18deg) translateX(4%); opacity: 0.68; }
+            100% { transform: rotate(-18deg) translateX(42%); opacity: 0; }
+        }
+        @keyframes introLidGleam {
+            0% { transform: rotate(12deg) translateX(-26%); opacity: 0; }
+            18% { opacity: 0.62; }
+            54% { transform: rotate(12deg) translateX(46%); opacity: 0.48; }
+            100% { transform: rotate(12deg) translateX(102%); opacity: 0; }
+        }
+        @keyframes introMetalSheen {
+            0% { transform: translateX(-92%); opacity: 0; }
+            20% { opacity: 0.82; }
+            54% { transform: translateX(8%); opacity: 0.7; }
+            100% { transform: translateX(92%); opacity: 0; }
+        }
+        @keyframes introLabelFlash {
+            0% { transform: scale(1); filter: brightness(1); }
+            28% { transform: scale(1.04); filter: brightness(1.18); }
+            100% { transform: scale(1); filter: brightness(1); }
+        }
+        @keyframes introLabelHalo {
+            0% { opacity: 0; transform: scale(0.82); }
+            32% { opacity: 0.95; transform: scale(1.04); }
+            100% { opacity: 0; transform: scale(1.22); }
+        }
+        @keyframes introTonearmSettle {
+            0% { transform: rotate(-96deg); }
+            54% { transform: rotate(-24deg); }
+            72% { transform: rotate(-14deg); }
+            84% { transform: rotate(-21deg); }
+            92% { transform: rotate(-16deg); }
+            100% { transform: rotate(-18deg); }
+        }
+        @media (max-width: 900px) {
+            .intro-shell { padding: 18px; }
+            .intro-turntable { min-height: 372px; padding: 18px 16px 20px; }
+            .intro-body { min-height: 244px; }
+            .intro-acrylic-lid { inset: 8px 10px 8px; border-radius: 26px; }
+            .intro-platter-zone { max-width: 320px; }
+            .intro-status { min-width: 154px; padding: 8px 10px; }
+            .intro-status-main { font-size: 0.82em; letter-spacing: 0.18em; }
+            .intro-status-sub { font-size: 0.48em; }
+            .intro-record-label-glow { inset: 78px; }
+            .intro-record-label { inset: 88px; padding: 10px; }
+            .intro-record-label span { font-size: 1em; line-height: 1.02; }
+            .intro-tonearm {
+                right: -10px;
+                top: 0;
+                width: 212px;
+                height: 190px;
+            }
+            .intro-tonearm-base { width: 42px; height: 42px; }
+            .intro-tonearm-bar { right: 18px; top: 17px; width: 172px; height: 11px; background: linear-gradient(90deg, #4f5d66 0 18%, #d7e1e8 18% 30%, #6b7d88 45%, #2f3e49 100%); }
+            .intro-tonearm-head { display: none; }
+            .intro-loader-panel { min-height: 176px; margin-top: 12px; }
+            .intro-file-trigger { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="intro-overlay" aria-hidden="true">
+        <div class="intro-shell">
+            <div id="intro-turntable" class="intro-turntable is-standby" data-intro-stage="standby">
+                <div class="intro-head">
+                    <span class="intro-brand">Srick Music Game</span>
+                    <div class="intro-status">
+                        <span class="intro-status-light"></span>
+                        <span class="intro-status-readout">
+                            <span id="intro-status-text" class="intro-status-main">Boot Sequence</span>
+                            <span id="intro-status-sub" class="intro-status-sub">Hi-Fi System Warmup</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="intro-body">
+                    <div class="intro-acrylic-lid" aria-hidden="true"></div>
+                    <div class="intro-platter-zone">
+                        <div class="intro-platter-base"></div>
+                        <div class="intro-record-shell">
+                            <div id="intro-record-rotor" class="intro-record-rotor">
+                                <button id="intro-record-trigger" class="intro-record-trigger" type="button" onclick="iniciarIntroPorClique(event)" aria-label="Iniciar abertura do jogo">
+                                    <div class="intro-record">
+                                        <div class="intro-record-highlight"></div>
+                                        <div class="intro-record-label-glow"></div>
+                                        <div class="intro-record-label"><span>Srick<br>Music Game</span></div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="intro-tonearm">
+                            <div class="intro-tonearm-base"></div>
+                            <div class="intro-tonearm-bar"></div>
+                            <div class="intro-tonearm-head"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="intro-loader-panel">
+                    <div class="intro-loader-box">
+                        <strong>Carregar Musicas</strong>
+                        <div class="intro-loader-action">
+                            <button id="btn-goto-setup" style="font-size: 1.1em; padding: 14px 34px;" onclick="irParaSetup()">CONFIGURAR PARTIDA >></button>
+                        </div>
+                        <p>Clique se quiser selecionar de outra pasta.</p>
+                        <label for="folderInput" class="intro-file-trigger">SELECIONAR ARQUIVOS</label>
+                        <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none">
+                        <div id="loading-bar-container" class="intro-progress-wrap">
+                            <div id="loading-bar" class="intro-progress-bar"></div>
+                        </div>
+                        <p id="loading-msg" class="intro-loading-msg"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-load" class="screen"></div>
+
+    <div id="screen-setup" class="screen">
+        <h1 style="margin-top: 40px;">CONFIGURACAO</h1>
+        
+        <div style="display: flex; justify-content: center; margin-top: -10px; margin-bottom: 20px;">
+            <div class="zoom-inline">
+                <span class="zoom-title">ZOOM TV</span>
+                <button class="btn-zoom" onclick="mudarZoom(-0.1)" title="Diminuir Zoom">-</button>
+                <span class="zoom-display">100%</span>
+                <button class="btn-zoom" onclick="mudarZoom(0.1)" title="Aumentar Zoom">+</button>
+            </div>
+        </div>
+
+        <div class="cache-status">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #111; padding-bottom: 5px;">
+                <span style="font-weight:900;">STATUS DA COLECAO</span>
+                <button onclick="limparCache()" class="btn-danger" style="padding:5px 10px; font-size:0.7em;">LIMPAR DADOS</button>
+            </div>
+            <div style="margin-top:5px;">Musicas Totais: <b id="stat-total" style="color:var(--ind-primary);">0</b></div>
+            <div>Historico (Ja Tocadas): <b id="stat-tocadas" style="color:var(--ind-neon-green);">0</b></div>
+            <div>Generos Detectados: <b id="stat-generos" style="color:var(--ind-primary);">0</b></div>
+        </div>
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 20px;">
+            <div style="flex: 1; min-width: 300px; border: var(--border-style); background: var(--ind-metal-dark); padding: 15px; box-shadow: var(--ind-shadow);">
+                <label style="font-weight: 900; color: var(--ind-primary);">CONFIGURAR PARTIDA</label>
+                <div class="setup-meta-row">
+                    <span class="setup-meta-label">Jogadores:</span>
+                    <div class="setup-choice-shell">
+                        <select id="qtd-players" onchange="gerarInputsJogadores()">
+                        <option value="2">2</option><option value="3">3</option><option value="4">4</option>
+                        <option value="5">5</option><option value="6">6</option><option value="7">7</option>
+                        <option value="8">8</option><option value="9">9</option><option value="10">10</option>
+                        <option value="11">11</option><option value="12">12</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="setup-meta-row">
+                    <span class="setup-meta-label">Musicas na Timeline:</span>
+                    <div class="setup-choice-shell">
+                        <select id="input-vitoria">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10" selected>10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="setup-meta-row">
+                    <span class="setup-meta-label">Fichas Iniciais:</span>
+                    <div class="setup-choice-shell">
+                        <select id="qtd-fichas">
+                        <option value="1">1</option>
+                        <option value="2" selected>2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div style="flex: 1; min-width: 300px; border: var(--border-style); background: var(--ind-metal-dark); padding: 15px; box-shadow: var(--ind-shadow);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label style="font-weight: 900; color: var(--ind-primary);">FILTRAR GENEROS</label>
+                    <button onclick="alternarTodosGeneros()" style="font-size:0.7em; padding:5px 10px;">TODOS/NENHUM</button>
+                </div>
+                <div id="container-generos" class="genre-grid">
+                    <div style="padding:10px; opacity:0.7;">Carregue as musicas primeiro...</div>
+                </div>
+                <div style="font-size:0.8em; margin-top:5px; text-align:right;">Musicas Disponiveis com Filtro: <b id="stat-filtradas">0</b></div>
+            </div>
+        </div>
+        <div id="player-inputs" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; margin-top: 20px;"></div>
+        <br>
+        <button onclick="iniciarJogo()" style="font-size: 1.5em; padding: 20px 50px; width: 100%; background: var(--ind-primary); color: black;">[ INICIAR PARTIDA ]</button>
+    </div>
+
+    <div id="screen-game" class="screen">
+        
+        <div id="info-bar" style="margin-top: 40px;">
+            <div class="info-left">
+                <span style="opacity: 0.7; font-size: 0.8em; font-weight: bold;">VEZ DE:</span>
+                <span id="nome-jogador-atual">...</span>
+            </div>
+            
+            <div class="info-zoom">
+                <div class="zoom-inline">
+                    <span class="zoom-title">ZOOM</span>
+                    <button class="btn-zoom" onclick="mudarZoom(-0.1)" title="Diminuir Zoom">-</button>
+                    <span class="zoom-display">100%</span>
+                    <button class="btn-zoom" onclick="mudarZoom(0.1)" title="Aumentar Zoom">+</button>
+                </div>
+            </div>
+
+            <div class="info-center">
+                <div class="stats-box" title="Cartas na Timeline / Meta para Vitoria">CARTAS <span id="progresso-atual">0/0</span></div>
+                <div class="stats-box" title="Fichas Disponiveis">FICHAS <span id="fichas-atual">0</span></div>
+            </div>
+            <div class="info-right">
+                <button class="btn-detail" onclick="abrirPlacarGeral()" style="font-size: 0.8em; padding: 6px 12px; margin: 0;">PLACAR</button>
+                <button class="btn-danger" onclick="confirmarReiniciar()" style="font-size: 0.8em; padding: 6px 12px; margin: 0;">SAIR</button>
+                <button class="btn-icon" onclick="toggleFullScreen()" title="Tela Cheia" style="margin: 0;">FS</button>
+            </div>
+        </div>
+
+        <div style="width: 100%; max-width: 1400px; margin: 0 auto;">
+            
+            <div id="fase-msg" style="font-size:1.2em; color:var(--ind-primary); margin:6px 0 4px; font-weight: bold; min-height: 22px;"></div>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <button onclick="moverTimeline(-1)" class="btn-cyan" style="font-size:1.5em; width:50px;">&lt;</button>
+                <div id="timeline-container" style="flex:1; overflow:hidden;"><div id="timeline"></div></div>
+                <button onclick="moverTimeline(1)" class="btn-cyan" style="font-size:1.5em; width:50px;">&gt;</button>
+            </div>
+
+            <div class="game-layout-bottom">
+                
+                <div id="sidebar-stats" onclick="alternarExpansaoSidebar(event)">
+                    <div class="sidebar-head">
+                        <span class="sidebar-title">PLACAR</span>
+                        <div class="sidebar-head-metrics">
+                            <span class="sidebar-icon token" title="Fichas">&#9679;</span>
+                            <span class="sidebar-icon note" title="Cartas">&#9835;</span>
+                        </div>
+                    </div>
+                    <div id="sidebar-content-pc"></div>
+                </div>
+
+                <div id="mesa-jogo">
+                    <div id="area-play">
+                        <div class="premium-shell">
+                            <div id="premium-deck-idle" class="premium-turntable is-ready interactable" onclick="tocarMusicaRodada()" style="cursor:pointer;" data-state="idle">
+                                <div class="deck-head">
+                                    <span class="deck-brand">SrickMusicPlus Premium Deck</span>
+                                    <div class="deck-status"><span class="deck-status-light"></span><span>Standby</span></div>
+                                </div>
+                                <div class="deck-body">
+                                    <div class="platter-zone">
+                                        <div class="platter-base"></div>
+                                        <div class="record-shell">
+                                            <div class="record">
+                                                <div class="record-highlight"></div>
+                                            </div>
+                                        </div>
+                                        <div class="tonearm">
+                                            <div class="tonearm-base"></div>
+                                            <div class="tonearm-bar"></div>
+                                            <div class="tonearm-head"></div>
+                                        </div>
+                                    </div>
+                                    <div class="deck-controls">
+                                        <div class="deck-control-row">
+                                            <button type="button" onclick="tocarMusicaRodada()" class="deck-action-btn is-primary" title="Tocar">
+                                                <span class="transport-icon-group" aria-hidden="true">
+                                                    <span class="transport-light is-on"><span class="transport-icon-play"></span></span>
+                                                </span>
+                                            </button>
+                                        </div>
+                                        <div class="deck-meter">
+                                            <div class="deck-meter-label">Signal</div>
+                                            <div class="deck-vu" aria-hidden="true">
+                                                <div class="vu-gauge left">
+                                                    <div class="vu-scale">
+                                                        <span class="vu-scale-mark"></span>
+                                                        <span class="vu-scale-mark"></span>
+                                                        <span class="vu-scale-mark"></span>
+                                                        <span class="vu-scale-mark"></span>
+                                                        <span class="vu-scale-mark"></span>
+                                                    </div>
+                                                    <span class="vu-needle"></span>
+                                                </div>
+                                                <div class="vu-gauge right">
+                                                    <div class="vu-scale">
+                                                        <span class="vu-scale-mark"></span>
+                                                        <span class="vu-scale-mark"></span>
+                                                        <span class="vu-scale-mark"></span>
+                                                        <span class="vu-scale-mark"></span>
+                                                        <span class="vu-scale-mark"></span>
+                                                    </div>
+                                                    <span class="vu-needle"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button id="btn-escolher-genero" class="deck-action-btn deck-action-genre" style="display:none;" onclick="abrirModalGenero(event)">
+                                            ESCOLHER GENERO
+                                            <span class="deck-action-sub">1 FICHA</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="turntable-copy">
+                                    <div>
+                                        <strong>Pronto para a proxima faixa</strong>
+                                        <span>Clique em tocar para soltar o disco no prato e iniciar a rodada.</span>
+                                    </div>
+                                    <div class="premium-hint">Pronto</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p id="label-play">[ USE O BOTAO TOCAR ]</p>
+                    </div>
+                    
+                    <div id="area-misterio" style="display:none;">
+                        <div class="premium-shell">
+                            <div id="premium-deck-playback" class="premium-turntable" data-state="loading">
+                                <div class="deck-head">
+                                    <span class="deck-brand">ESCUTE E MARQUE A POSICAO NA TIMELINE</span>
+                                    <div class="deck-status"><span class="deck-status-light"></span><span id="premium-status-text">Cueing</span></div>
+                                </div>
+                                <div class="deck-body">
+                                    <div class="platter-zone">
+                                        <div class="platter-base"></div>
+                                        <div class="record-shell">
+                                            <div class="record">
+                                                <div class="record-highlight"></div>
+                                            </div>
+                                        </div>
+                                        <div class="tonearm">
+                                            <div class="tonearm-base"></div>
+                                            <div class="tonearm-bar"></div>
+                                            <div class="tonearm-head"></div>
+                                        </div>
+                                    </div>
+                                    <div class="deck-controls">
+                                        <div class="deck-control-row">
+                                            <button type="button" id="btn-pause" onclick="alternarPausa()" class="deck-action-btn is-primary" data-mode="pause" title="Pausar ou retomar">
+                                                <span class="transport-icon-group" aria-hidden="true">
+                                                    <span class="transport-light transport-play-indicator"><span class="transport-icon-play"></span></span>
+                                                    <span class="transport-light transport-pause-indicator is-on"><span class="transport-icon-pause"></span></span>
+                                                </span>
+                                            </button>
+                                        </div>
+                                        <div class="deck-meter">
+                                            <div class="deck-meter-label">Playback</div>
+                                            <div class="deck-vu" aria-hidden="true">
+                                                <div class="vu-gauge left">
+                                                    <div class="vu-scale">
+                                                        <span class="vu-scale-mark"></span>
+                                                        <span class="vu-scale-mark"></span>
+                                                        <span class="vu-scale-mark"></span>
+                                                        <span class="vu-scale-mark"></span>
+                                                        <span class="vu-scale-mark"></span>
+                                                    </div>
+                                                    <span class="vu-needle"></span>
+                                                </div>
+                                                <div class="vu-gauge right">
+                                                    <div class="vu-scale">
+                                                        <span class="vu-scale-mark"></span>
+                                                        <span class="vu-scale-mark"></span>
+                                                        <span class="vu-scale-mark"></span>
+                                                        <span class="vu-scale-mark"></span>
+                                                        <span class="vu-scale-mark"></span>
+                                                    </div>
+                                                    <span class="vu-needle"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="deck-control-row">
+                                            <button type="button" id="btn-pular" onclick="usarFichaParaPular()" class="deck-action-btn" title="Pular musica">
+                                                <span class="transport-icon-group" aria-hidden="true">
+                                                    <span class="transport-light is-on">
+                                                        <span class="transport-icon-skip">
+                                                            <span class="transport-icon-skip-bar"></span>
+                                                        </span>
+                                                    </span>
+                                                </span>
+                                                <span class="transport-label">Skip</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="premium-under-actions mystery-actions">
+                                    <button id="btn-desfazer" onclick="desfazerUltimaAcao()" class="btn-undo" disabled>DESFAZER</button>
+                                    <button id="btn-revelar" onclick="revelarCarta()" class="btn-success" style="background:var(--ind-primary); color:black;" disabled>CONFIRMAR</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="area-revelacao" style="display:none; margin-top: 20px;">
+                        <div class="reveal-layout">
+                            <div id="card-resultado" class="card-revelado">
+                                <h2 id="res-ano" style="font-size: 3.5em; margin: 0; color: var(--ind-primary);">2000</h2>
+                                <h3 id="res-musica" style="margin: 10px 0;">Musica</h3>
+                                <p id="res-artista" style="opacity: 0.8;">Artista</p>
+                                <span id="res-genero" class="tag-genero">ROCK</span>
+                                <div id="res-msg" style="margin-top: 20px; font-weight: 900; background: #111; padding: 10px;">RESULTADO</div>
+                            </div>
+                            <div class="bonus-section">
+                                <span style="font-weight: bold; color: var(--ind-primary);">BONUS ARTISTA/MUSICA?</span>
+                                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                    <button id="btn-bonus-win" onclick="processarBonus(true)" style="flex:1; background:var(--ind-primary); color:black;">SIM (+1)</button>
+                                    <button id="btn-bonus-fail" onclick="processarBonus(false)" class="btn-danger" style="flex:1;">NAO (-1)</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="action-container" style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
+                            <button onclick="cancelarRodada()" class="btn-danger">CANCELAR RODADA</button>
+                            <button id="btn-proximo" onclick="proximoJogador()" style="background:white; color:black;">PROXIMO >></button>
+                        </div>
+                    </div>
+                </div>
+
+            </div> </div> <audio id="audio-player" style="display:none;"></audio><audio id="intro-audio" src="abertura.mp3" preload="auto" style="display:none;"></audio>
+    </div>
+
+    <div id="modal-challenger" class="modal-overlay">
+        <div class="modal-box">
+            <h2 style="color:var(--ind-primary);">DESAFIO!</h2>
+            <p>Quem deseja desafiar a posicao?</p>
+            <div id="lista-challengers" style="max-height:200px; overflow-y:auto; text-align:left;"></div>
+            <button onclick="document.getElementById('modal-challenger').style.display='none'" class="btn-danger" style="margin-top:10px; width:100%;">CANCELAR</button>
+        </div>
+    </div>
+    
+    <div id="modal-escolha-genero" class="modal-overlay">
+        <div class="modal-box">
+            <h2 style="color:var(--ind-neon-purple);">ESCOLHER GENERO</h2>
+            <p>Gastar 1 Ficha para forcar o proximo genero?</p>
+            <div id="lista-generos-extra" style="max-height:300px; overflow-y:auto; text-align:left; display:grid; grid-template-columns: 1fr 1fr; gap:5px;"></div>
+            <button onclick="document.getElementById('modal-escolha-genero').style.display='none'" class="btn-danger" style="margin-top:15px; width:100%;">CANCELAR</button>
+        </div>
+    </div>
+    
+    <div id="modal-placar" class="modal-overlay">
+        <div class="modal-box" style="width:95%; max-width:800px;">
+            <div class="placar-modal-head"><h2>PLACAR GERAL</h2> <button onclick="document.getElementById('modal-placar').style.display='none'">X</button></div>
+            <div id="placar-lista" class="placar-modal-lista"></div>
+        </div>
+    </div>
+
+    <div id="modal-dialog" class="modal-overlay">
+        <div class="modal-box" style="max-width:560px;">
+            <h2 id="dialog-title" style="color:var(--ind-primary);">ATENCAO</h2>
+            <p id="dialog-message" class="dialog-text"></p>
+            <div class="dialog-actions">
+                <button id="dialog-cancel" class="btn-danger" type="button" onclick="responderDialogo(false)">CANCELAR</button>
+                <button id="dialog-confirm" class="btn-success" type="button" onclick="responderDialogo(true)">OK</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="screen-vitoria" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:var(--ind-bg); z-index:3000; flex-direction:column; align-items:center; overflow-y:auto; padding:20px;">
+        <div style="font-size: 5em;">TROFEU</div>
+        <h1>VENCEDOR</h1>
+        <h2 id="nome-vencedor" style="font-size: 3em; color: var(--ind-primary);">NOME</h2>
+        <div id="final-standings" style="width:90%; max-width:800px; margin:20px 0; position:relative; z-index: 10;"></div>
+        <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center; position:relative; z-index:10;">
+            <button onclick="abrirPlacarGeral()" style="font-size:1.3em; padding:18px 24px; background:var(--ind-metal-dark); color:var(--ind-primary); border:var(--border-style); box-shadow: var(--shadow-soft);">VER PLACAR FINAL</button>
+            <button onclick="reiniciarPartida()" style="font-size:1.5em; padding:20px; position:relative; z-index: 10;">NOVA PARTIDA</button>
+        </div>
+    </div>
+
+    <script>
+        // --- FUNCAO DE ZOOM PARA TV/DEX ---
+        let currentZoom = 1;
+        let introAberturaJaRodou = false;
+        let introSpinFrame = null;
+        let introAudioPreparado = false;
+
+        async function solicitarTelaCheiaIntro() {
+            const alvo = document.documentElement;
+            try {
+                if (document.fullscreenElement) return;
+                if (alvo.requestFullscreen) {
+                    await alvo.requestFullscreen();
+                } else if (alvo.webkitRequestFullscreen) {
+                    alvo.webkitRequestFullscreen();
+                }
+            } catch (erro) {
+                console.warn('Nao foi possivel entrar em tela cheia antes da intro:', erro);
+            }
+        }
+
+        function animarIntroDesaceleracao(rotor, duracao = 2600, rotacaoTotal = 2520) {
+            if (!rotor) return;
+            if (introSpinFrame) {
+                cancelAnimationFrame(introSpinFrame);
+                introSpinFrame = null;
+            }
+
+            rotor.style.animation = 'none';
+            rotor.style.transform = 'rotate(0deg)';
+            const inicio = performance.now();
+
+            const atualizar = (agora) => {
+                const progresso = Math.min((agora - inicio) / duracao, 1);
+                const fator = (2 * progresso) - (progresso * progresso);
+                const angulo = rotacaoTotal * fator;
+                rotor.style.transform = `rotate(${angulo}deg)`;
+
+                if (progresso < 1) {
+                    introSpinFrame = requestAnimationFrame(atualizar);
+                } else {
+                    introSpinFrame = null;
+                    rotor.style.transform = `rotate(${rotacaoTotal}deg)`;
+                }
+            };
+
+            introSpinFrame = requestAnimationFrame(atualizar);
+        }
+
+        async function prepararAudioIntro() {
+            if (!introAudio || introAudioPreparado) return;
+            introAudioPreparado = true;
+            introAudio.volume = 0.78;
+            introAudio.currentTime = 0;
+
+            try {
+                await introAudio.play();
+                introAudio.pause();
+                introAudio.currentTime = 0;
+            } catch (err) {
+                console.warn('Nao foi possivel preparar o audio da abertura antecipadamente:', err);
+            }
+        }
+
+        function tocarAudioIntro() {
+            if (!introAudio) return;
+            try {
+                introAudio.pause();
+                introAudio.currentTime = 0;
+                introAudio.volume = 0.78;
+                introAudio.play().catch(err => {
+                    console.warn('Nao foi possivel tocar o audio da abertura:', err);
+                });
+            } catch (err) {
+                console.warn('Falha ao iniciar a trilha da abertura:', err);
+            }
+        }
+
+        function obterDuracaoAudioIntroMs(padrao = 7400) {
+            if (!introAudio) return padrao;
+            const duracao = Number(introAudio.duration);
+            if (Number.isFinite(duracao) && duracao > 0) {
+                return Math.round(duracao * 1000);
+            }
+            return padrao;
+        }
+
+        function executarIntroAbertura() {
+            const overlay = document.getElementById('intro-overlay');
+            const turntable = document.getElementById('intro-turntable');
+            const status = document.getElementById('intro-status-text');
+            const statusSub = document.getElementById('intro-status-sub');
+            const rotor = document.getElementById('intro-record-rotor');
+            const duracaoAudioIntro = obterDuracaoAudioIntroMs();
+            const tempoTotalRotacao = 2140 + duracaoAudioIntro;
+            const rotacaoEstimativa = Math.max(2520, Math.round((tempoTotalRotacao / 1000) * 720));
+            const rotacaoTotal = Math.ceil(rotacaoEstimativa / 360) * 360;
+
+            if (!overlay || !turntable || introAberturaJaRodou) return;
+            introAberturaJaRodou = true;
+            turntable.classList.remove('is-standby');
+
+            const definirEtapa = (etapa, textoStatus, textoSub) => {
+                turntable.dataset.introStage = etapa;
+                if (status && textoStatus) status.innerText = textoStatus;
+                if (statusSub && textoSub) statusSub.innerText = textoSub;
+                if (rotor && etapa === 'spin') {
+                    animarIntroDesaceleracao(rotor, tempoTotalRotacao, rotacaoTotal);
+                }
+            };
+
+            definirEtapa('idle', 'Boot Sequence', 'Hi-Fi System Warmup');
+            setTimeout(() => {
+                definirEtapa('drop', 'Vinyl Drop', 'Platter Receiving Media');
+            }, 360);
+            setTimeout(() => definirEtapa('spin', 'Spin Up', 'Reference Speed Stabilizing'), 940);
+            setTimeout(() => {
+                definirEtapa('arm', 'Locked In', 'Needle Settling On Groove');
+                tocarAudioIntro();
+            }, 2140);
+            setTimeout(() => {
+                definirEtapa('done', 'Ready', 'Collection Loader Online');
+                overlay.classList.add('show-loader');
+                carregarColecaoPadrao();
+            }, 2140 + duracaoAudioIntro);
+        }
+
+        function prepararIntroStandby() {
+            const turntable = document.getElementById('intro-turntable');
+            const status = document.getElementById('intro-status-text');
+            const statusSub = document.getElementById('intro-status-sub');
+            if (!turntable) return;
+            turntable.dataset.introStage = 'standby';
+            turntable.classList.add('is-standby');
+            if (status) status.innerText = 'Tap Record';
+            if (statusSub) statusSub.innerText = 'Toque no disco para abrir';
+        }
+
+        async function iniciarIntroPorClique(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            if (introAberturaJaRodou) return;
+            await prepararAudioIntro();
+            await solicitarTelaCheiaIntro();
+            executarIntroAbertura();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', prepararIntroStandby);
+        } else {
+            prepararIntroStandby();
+        }
+
+        function mudarZoom(valor) {
+            currentZoom += valor;
+            if (currentZoom < 0.5) currentZoom = 0.5;
+            if (currentZoom > 2.5) currentZoom = 2.5;
+            
+            document.body.style.zoom = currentZoom;
+            document.documentElement.style.setProperty('--zoom-level', currentZoom);
+            
+            document.querySelectorAll('.zoom-display').forEach(el => {
+                el.innerText = Math.round(currentZoom * 100) + '%';
+            });
+        }
+        document.documentElement.style.setProperty('--zoom-level', currentZoom);
+
+        // --- SISTEMA DE SFX (Sintetizador Web Audio API) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function tocarSFX(tipo) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (tipo === 'moeda') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1000, t);
+                osc.frequency.setValueAtTime(1500, t + 0.1);
+                gain.gain.setValueAtTime(0.1, t);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
+                osc.start(t);
+                osc.stop(t + 0.2);
+            } 
+            else if (tipo === 'acerto') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, t); 
+                osc.frequency.setValueAtTime(554.37, t + 0.1); 
+                osc.frequency.setValueAtTime(659.25, t + 0.2); 
+                gain.gain.setValueAtTime(0.1, t);
+                gain.gain.linearRampToValueAtTime(0, t + 0.4);
+                osc.start(t);
+                osc.stop(t + 0.4);
+            }
+            else if (tipo === 'erro') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, t);
+                osc.frequency.linearRampToValueAtTime(150, t + 0.3);
+                gain.gain.setValueAtTime(0.1, t);
+                gain.gain.linearRampToValueAtTime(0, t + 0.3);
+                osc.start(t);
+                osc.stop(t + 0.3);
+            }
+            else if (tipo === 'vitoria') {
+                osc.type = 'square';
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => { 
+                    osc.frequency.setValueAtTime(freq, t + (i * 0.15));
+                });
+                gain.gain.setValueAtTime(0.1, t);
+                gain.gain.linearRampToValueAtTime(0, t + 1.2);
+                osc.start(t);
+                osc.stop(t + 1.2);
+            }
+        }
+
+        function dispararConfetes() {
+            const cores = ['#00e5ff', '#39ff14', '#d500f9', '#ffab00', '#ff1744', '#ffffff'];
+            for(let i = 0; i < 150; i++) {
+                let conf = document.createElement('div');
+                conf.style.position = 'fixed';
+                conf.style.width = Math.random() * 10 + 5 + 'px';
+                conf.style.height = Math.random() * 5 + 5 + 'px';
+                conf.style.backgroundColor = cores[Math.floor(Math.random() * cores.length)];
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.top = '-20px';
+                conf.style.zIndex = '5';
+                conf.style.opacity = Math.random() + 0.5;
+                conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+                conf.style.transition = `top ${Math.random() * 2 + 2}s ease-in, transform ${Math.random() * 2 + 2}s linear, opacity 3s`;
+                document.body.appendChild(conf);
+                setTimeout(() => { conf.style.top = '120vh'; conf.style.transform = `rotate(${Math.random() * 720}deg)`; conf.style.opacity = '0'; }, 50);
+                setTimeout(() => conf.remove(), 4000);
+            }
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(err => { alert(`Nao foi possivel ativar tela cheia: ${err.message}`); }); } 
+            else { if (document.exitFullscreen) { document.exitFullscreen(); } }
+        }
+
+        // --- VARIAVEIS GLOBAIS ---
+        let bancoTotal = [], bancoFiltrado = [], bancoDeMusicas = [], historicoTocadas = [];
+        let jogadores = [], indiceJogadorAtual = 0;
+        let cartaDaRodada = null, maximoCartasVitoria = 10;
+        let faseRodada = 0, slotEscolhidoPeloDono = -1;
+        let apostasDesafiantes = [], bonusErradoNaRodada = false;
+        let generosDisponiveis = new Set();
+        let resultadoTurno = { vencedor: null, donoAcertou: false, roubada: false };
+        let modoTodosGeneros = false, generoForcado = null, vitoriaDeclarada = false;
+        let deltaFichasJogadorAtualNaRodada = 0;
+        let currentAudioUrl = null;
+        let resultadoSlots = {};
+        let dialogoResolver = null;
+        let sidebarAmpliada = false;
+        let configuracaoPartidaAtual = null;
+        let carregamentoPadraoTentado = false;
+        let tonearmFrame = null;
+        const COR_NEUTRA_JOGADOR = '#546e7a';
+        const TONEARM_REST_ANGLE = -88;
+        const TONEARM_START_ANGLE = -8;
+        const TONEARM_END_ANGLE = -32;
+        const ALIASES_GENERO = {
+            'funk, soul, disco': ['funk, soul, disco', 'r&b / soul / black'],
+            'r&b / soul / black': ['r&b / soul / black', 'funk, soul, disco']
+        };
+
+        const CORES_JOGADORES = ['#00e5ff', '#ff4081', '#ffd740', '#69f0ae', '#b388ff', '#ffab40', '#1fa2e0', '#ff5252', '#e040fb', '#26c6a6', '#cddc39', '#ff6e40'];
+        const audioPlayer = document.getElementById('audio-player');
+        const introAudio = document.getElementById('intro-audio');
+
+        function lerStorageJson(chave, fallback) {
+            try {
+                const valor = localStorage.getItem(chave);
+                return valor ? JSON.parse(valor) : fallback;
+            } catch (err) {
+                console.warn(`Falha ao ler ${chave} do localStorage:`, err);
+                return fallback;
+            }
+        }
+
+        function abrirDialogo({ titulo = 'ATENCAO', mensagem = '', confirmarTexto = 'OK', cancelarTexto = 'CANCELAR', mostrarCancelar = false, confirmarClasse = 'btn-success' } = {}) {
+            const modal = document.getElementById('modal-dialog');
+            const tituloEl = document.getElementById('dialog-title');
+            const mensagemEl = document.getElementById('dialog-message');
+            const btnConfirmar = document.getElementById('dialog-confirm');
+            const btnCancelar = document.getElementById('dialog-cancel');
+
+            if (!modal || !tituloEl || !mensagemEl || !btnConfirmar || !btnCancelar) {
+                return Promise.resolve(true);
+            }
+
+            if (dialogoResolver) {
+                dialogoResolver(false);
+                dialogoResolver = null;
+            }
+
+            tituloEl.innerText = titulo;
+            mensagemEl.innerText = mensagem;
+            btnConfirmar.innerText = confirmarTexto;
+            btnCancelar.innerText = cancelarTexto;
+            btnCancelar.style.display = mostrarCancelar ? 'inline-block' : 'none';
+            btnConfirmar.className = confirmarClasse;
+            modal.style.display = 'flex';
+
+            return new Promise(resolve => {
+                dialogoResolver = resolve;
+            });
+        }
+
+        function responderDialogo(valor) {
+            const modal = document.getElementById('modal-dialog');
+            if (modal) modal.style.display = 'none';
+            if (dialogoResolver) {
+                const resolver = dialogoResolver;
+                dialogoResolver = null;
+                resolver(valor);
+            }
+        }
+
+        function mostrarResultadosNaTimeline() {
+            return Object.keys(resultadoSlots).length > 0;
+        }
+
+        function limparResultadosTimeline() {
+            resultadoSlots = {};
+        }
+
+        function normalizarSlots(lista) {
+            return [...new Set(lista.filter(idx => Number.isInteger(idx) && idx >= 0))];
+        }
+
+        function normalizarGenero(valor) {
+            return (valor || '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .trim()
+                .toLowerCase();
+        }
+
+        function generoEhCompativel(generoMusica, generoDesejado) {
+            const musica = normalizarGenero(generoMusica);
+            const desejado = normalizarGenero(generoDesejado);
+            const grupo = ALIASES_GENERO[desejado] || [desejado];
+            return grupo.includes(musica);
+        }
+
+        function marcarResultadoSlot(idx, status, cor) {
+            if (!Number.isInteger(idx) || idx < 0) return;
+            resultadoSlots[idx] = { status, cor };
+        }
+
+        function obterIdMusica(carta) {
+            return carta?.fileObj?.name || carta?.fileName || '';
+        }
+
+        function prepararIntroLoader(mensagem = '') {
+            const introLoaderBox = document.querySelector('.intro-loader-box');
+            if (introLoaderBox) {
+                introLoaderBox.classList.remove('is-ready');
+                introLoaderBox.classList.add('is-loading');
+            }
+            document.getElementById('loading-bar').style.width = "0%";
+            document.getElementById('loading-msg').innerText = mensagem;
+            return introLoaderBox;
+        }
+
+        function popularBancoTotal(entradas) {
+            bancoTotal = [];
+            generosDisponiveis.clear();
+
+            let processados = 0;
+            let ignorados = 0;
+
+            entradas.forEach(entrada => {
+                const fileName = entrada.fileName || entrada.fileObj?.name || '';
+                const dados = window.DB_MUSICAS[fileName];
+                if (!dados) {
+                    ignorados++;
+                    return;
+                }
+
+                const gen = dados.genero || "Outros";
+                generosDisponiveis.add(gen);
+                bancoTotal.push({
+                    fileObj: entrada.fileObj || null,
+                    fileName,
+                    url: entrada.url || null,
+                    musica: dados.musica,
+                    artista: dados.artista,
+                    ano: dados.ano,
+                    genero: gen,
+                    usada: false
+                });
+                processados++;
+            });
+
+            return { processados, ignorados };
+        }
+
+        function finalizarCarregamentoColecao(processados, ignorados, sufixo = '') {
+            const introLoaderBox = document.querySelector('.intro-loader-box');
+            document.getElementById('loading-bar').style.width = "100%";
+            document.getElementById('loading-msg').innerText = `${processados} MUSICAS PRONTAS${ignorados ? ` | ${ignorados} SEM GABARITO` : ''}${sufixo}.`;
+            if (introLoaderBox) {
+                introLoaderBox.classList.remove('is-loading');
+                introLoaderBox.classList.add('is-ready');
+            }
+            renderizarSelecaoGeneros();
+            atualizarStatsCache();
+        }
+
+        async function listarMusicasPadrao() {
+            if (typeof window.DB_MUSICAS === 'undefined') {
+                throw new Error('Gabarito nao carregado.');
+            }
+
+            return Object.keys(window.DB_MUSICAS)
+                .sort((a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' }))
+                .map(fileName => ({
+                    fileName,
+                    url: new URL(`./Musicas/${encodeURIComponent(fileName)}`, window.location.href).href
+                }));
+        }
+
+        async function carregarColecaoPadrao() {
+            if (carregamentoPadraoTentado) return;
+            carregamentoPadraoTentado = true;
+
+            if (typeof window.DB_MUSICAS === 'undefined') {
+                document.getElementById('loading-msg').innerText = 'Gabarito nao carregado. Use Selecionar Arquivos apos recarregar a pagina.';
+                return;
+            }
+
+            prepararIntroLoader('Carregando automaticamente a pasta Musicas...');
+
+            try {
+                const arquivos = await listarMusicasPadrao();
+                const { processados, ignorados } = popularBancoTotal(arquivos);
+                if (processados === 0) {
+                    throw new Error('Nenhuma musica da pasta Musicas foi encontrada no gabarito.');
+                }
+                finalizarCarregamentoColecao(processados, ignorados, ' | PASTA PADRAO');
+            } catch (err) {
+                const introLoaderBox = document.querySelector('.intro-loader-box');
+                if (introLoaderBox) {
+                    introLoaderBox.classList.remove('is-loading');
+                }
+                document.getElementById('loading-bar').style.width = "0%";
+                document.getElementById('loading-msg').innerText = 'Nao foi possivel carregar automaticamente a pasta Musicas. Use Selecionar Arquivos.';
+                console.warn('Falha ao carregar a pasta padrao Musicas:', err);
+            }
+        }
+
+        function liberarAudioAtual() {
+            audioPlayer.pause();
+            audioPlayer.removeAttribute('src');
+            audioPlayer.load();
+
+            if (currentAudioUrl && currentAudioUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(currentAudioUrl);
+            }
+            currentAudioUrl = null;
+        }
+
+        function tocarCartaAtual(carta) {
+            liberarAudioAtual();
+            if (carta.fileObj) {
+                currentAudioUrl = URL.createObjectURL(carta.fileObj);
+                audioPlayer.src = currentAudioUrl;
+            } else if (carta.url) {
+                audioPlayer.src = carta.url;
+            } else {
+                console.warn('Carta sem fonte de audio valida:', carta);
+                atualizarVisualPremium('paused');
+                return;
+            }
+            atualizarVisualPremium('loading');
+            audioPlayer.play().then(() => {
+                atualizarVisualPremium('playing');
+            }).catch(err => {
+                atualizarVisualPremium('paused');
+                console.warn('Nao foi possivel iniciar o audio automaticamente:', err);
+            });
+        }
+
+        function aplicarAnguloBraco(valorGraus) {
+            const deck = document.getElementById('premium-deck-playback');
+            if (!deck) return;
+            deck.style.setProperty('--tonearm-angle', `${valorGraus}deg`);
+        }
+
+        function atualizarBracoPorProgresso(progresso) {
+            const progressoSeguro = Math.max(0, Math.min(1, progresso || 0));
+            const angulo = TONEARM_START_ANGLE + (TONEARM_END_ANGLE - TONEARM_START_ANGLE) * progressoSeguro;
+            aplicarAnguloBraco(angulo);
+        }
+
+        function pararRastreamentoBraco(reset = false) {
+            if (tonearmFrame) {
+                cancelAnimationFrame(tonearmFrame);
+                tonearmFrame = null;
+            }
+            if (reset) {
+                aplicarAnguloBraco(TONEARM_REST_ANGLE);
+            }
+        }
+
+        function recolherBracoNoFim() {
+            const tonearm = document.querySelector('#premium-deck-playback .tonearm');
+            if (tonearm) {
+                tonearm.style.transition = 'transform 0.72s ease-in-out';
+            }
+            aplicarAnguloBraco(TONEARM_REST_ANGLE);
+            setTimeout(() => {
+                if (tonearm) {
+                    tonearm.style.transition = '';
+                }
+            }, 760);
+        }
+
+        function iniciarRastreamentoBraco() {
+            pararRastreamentoBraco(false);
+            atualizarBracoPorProgresso(0);
+            const tonearm = document.querySelector('#premium-deck-playback .tonearm');
+            if (tonearm) {
+                tonearm.style.transition = '';
+            }
+
+            const atualizar = () => {
+                const duracao = Number(audioPlayer.duration);
+                if (audioPlayer.paused) {
+                    tonearmFrame = null;
+                    return;
+                }
+
+                if (!Number.isFinite(duracao) || duracao <= 0) {
+                    tonearmFrame = requestAnimationFrame(atualizar);
+                    return;
+                }
+
+                atualizarBracoPorProgresso(audioPlayer.currentTime / duracao);
+                tonearmFrame = requestAnimationFrame(atualizar);
+            };
+
+            atualizar();
+        }
+
+        function atualizarVisualPremium(estado) {
+            const deck = document.getElementById('premium-deck-playback');
+            if (deck) deck.dataset.state = estado;
+
+            const status = document.getElementById('premium-status-text');
+            const hint = document.getElementById('premium-hint-text');
+            const botao = document.getElementById('btn-pause');
+            if (!status) return;
+
+            const mapa = {
+                idle: ['Standby', 'Tap to cue', 'play'],
+                drop: ['Dropping', 'Vinyl landing', 'wait'],
+                loading: ['Cueing', 'Needle settling', 'wait'],
+                playing: ['Playing', 'Listening', 'pause'],
+                paused: ['Paused', 'Playback paused', 'play'],
+                reveal: ['Reveal', 'Round result', 'play']
+            };
+            const atual = mapa[estado] || mapa.idle;
+            status.innerText = atual[0];
+            if (hint) hint.innerText = atual[1];
+            if (botao) {
+                botao.dataset.mode = atual[2];
+                botao.disabled = atual[2] === 'wait';
+                const playIcon = botao.querySelector('.transport-play-indicator');
+                const pauseIcon = botao.querySelector('.transport-pause-indicator');
+                if (playIcon) playIcon.classList.toggle('is-on', atual[2] === 'play');
+                if (pauseIcon) pauseIcon.classList.toggle('is-on', atual[2] === 'pause');
+            }
+        }
+
+        function restaurarSelecaoCor(idx, cor) {
+            const inputCor = document.getElementById(`cor-p${idx}`);
+            if (!inputCor) return;
+
+            inputCor.value = cor;
+            const card = inputCor.closest('.player-setup-card');
+            if (card) {
+                const corAplicada = cor || COR_NEUTRA_JOGADOR;
+                const usaTextoEscuro = Boolean(cor);
+                card.style.setProperty('--player-accent', corAplicada);
+                card.style.setProperty('--player-ink', usaTextoEscuro ? '#041015' : '#e7eef2');
+                card.style.setProperty('--player-placeholder', usaTextoEscuro ? 'rgba(4,16,21,0.72)' : 'rgba(231,238,242,0.72)');
+                card.style.setProperty('--player-dot', cor || 'rgba(231,238,242,0.5)');
+
+                card.querySelectorAll('.player-color-swatch').forEach(btn => {
+                    btn.classList.toggle('selected', btn.dataset.color === cor);
+                });
+            }
+        }
+
+        function fecharPaletasCor(excetoIdx = null) {
+            document.querySelectorAll('.player-setup-card.palette-open').forEach(card => {
+                if (excetoIdx && card.dataset.playerIdx === String(excetoIdx)) return;
+                card.classList.remove('palette-open');
+            });
+        }
+
+        function togglePaletaCor(idx, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            const card = document.querySelector(`.player-setup-card[data-player-idx="${idx}"]`);
+            if (!card) return;
+            const abrir = !card.classList.contains('palette-open');
+            fecharPaletasCor();
+            card.classList.toggle('palette-open', abrir);
+        }
+
+        function markupPaletaCores(idx) {
+            return CORES_JOGADORES.map(cor => `<button type="button" class="player-color-swatch" data-color="${cor}" style="background:${cor};" onclick="setCor(${idx}, '${cor}', event)" aria-label="Selecionar cor"></button>`).join('');
+        }
+
+        audioPlayer.addEventListener('ended', () => {
+            pararRastreamentoBraco(false);
+            atualizarBracoPorProgresso(1);
+            recolherBracoNoFim();
+            atualizarVisualPremium('paused');
+        });
+
+        audioPlayer.addEventListener('play', () => {
+            iniciarRastreamentoBraco();
+        });
+
+        audioPlayer.addEventListener('pause', () => {
+            if (!audioPlayer.ended) {
+                pararRastreamentoBraco(false);
+            }
+        });
+
+        document.getElementById('folderInput').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files).filter(f => f.name.toLowerCase().endsWith('.mp3'));
+            if (files.length === 0) return alert("Nenhum MP3 encontrado.");
+            if (typeof window.DB_MUSICAS === 'undefined') return alert("ERRO: gabarito_plus.js nao carregado.");
+
+            prepararIntroLoader('Carregando pasta selecionada...');
+            const entradas = files.map(file => ({ fileObj: file, fileName: file.name, url: null }));
+            const { processados, ignorados } = popularBancoTotal(entradas);
+            finalizarCarregamentoColecao(processados, ignorados, ' | PASTA MANUAL');
+        });
+
+        function renderizarSelecaoGeneros() {
+            const container = document.getElementById('container-generos');
+            container.innerHTML = "";
+            const listaOrdenada = Array.from(generosDisponiveis).sort();
+            if(listaOrdenada.length === 0) { container.innerHTML = "<div style='padding:10px;'>Nenhum genero detectado.</div>"; return; }
+            listaOrdenada.forEach(gen => {
+                const div = document.createElement('div');
+                div.className = 'genre-option selected';
+                div.onclick = function() { toggleGenero(this); };
+                div.innerHTML = `<span>${gen}</span><input type="checkbox" class="genre-checkbox" value="${gen}" checked>`;
+                container.appendChild(div);
+            });
+            atualizarContagemFiltrada();
+            document.getElementById('stat-total').innerText = bancoTotal.length;
+            document.getElementById('stat-generos').innerText = listaOrdenada.length;
+        }
+
+        function toggleGenero(el) { el.classList.toggle('selected'); const cb = el.querySelector('input'); cb.checked = !cb.checked; atualizarContagemFiltrada(); }
+        function alternarTodosGeneros() { const opcoes = document.querySelectorAll('.genre-option'); const temDesmarcado = Array.from(opcoes).some(el => !el.classList.contains('selected')); opcoes.forEach(el => { const cb = el.querySelector('input'); if (temDesmarcado) { el.classList.add('selected'); cb.checked = true; } else { el.classList.remove('selected'); cb.checked = false; } }); atualizarContagemFiltrada(); }
+        function atualizarContagemFiltrada() { const selecionados = Array.from(document.querySelectorAll('.genre-checkbox:checked')).map(cb => cb.value); const qtd = bancoTotal.filter(m => selecionados.includes(m.genero)).length; const el = document.getElementById('stat-filtradas'); el.innerText = qtd; el.style.color = qtd < 20 ? 'red' : 'var(--ind-primary)'; }
+        function irParaSetup() {
+            const overlay = document.getElementById('intro-overlay');
+            if (overlay) {
+                overlay.classList.add('is-hidden');
+                setTimeout(() => overlay.remove(), 500);
+            }
+            trocarTela('screen-setup');
+            carregarConfiguracoesSalvas();
+            atualizarStatsCache();
+            if(bancoTotal.length > 0) atualizarContagemFiltrada();
+        }
+
+        function iniciarJogo() {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const generosSelecionados = Array.from(document.querySelectorAll('.genre-checkbox:checked')).map(cb => cb.value);
+            if (generosSelecionados.length === 0) return alert("Selecione pelo menos 1 genero musical!");
+            
+            modoTodosGeneros = (generosSelecionados.length === generosDisponiveis.size);
+            bancoFiltrado = bancoTotal.filter(m => generosSelecionados.includes(m.genero));
+            carregarHistorico();
+            bancoDeMusicas = bancoFiltrado.filter(m => !historicoTocadas.includes(obterIdMusica(m)));
+
+            const qtdJogadores = parseInt(document.getElementById('qtd-players').value);
+            if (bancoDeMusicas.length < (qtdJogadores * 2) + 5) { if(!confirm(`ATENCAO: Apenas ${bancoDeMusicas.length} musicas disponiveis. Continuar?`)) return; }
+
+            maximoCartasVitoria = parseInt(document.getElementById('input-vitoria').value);
+            configurarJogadores(qtdJogadores);
+            configuracaoPartidaAtual = {
+                qtdJogadores,
+                fichasIniciais: parseInt(document.getElementById('qtd-fichas').value, 10),
+                meta: maximoCartasVitoria,
+                players: jogadores.map(j => ({ nome: j.nome, cor: j.cor }))
+            };
+            salvarConfiguracao();
+            embaralhar(bancoDeMusicas);
+            distribuirCartasIniciais();
+            
+            vitoriaDeclarada = false;
+            trocarTela('screen-game');
+            resetarRodada();
+        }
+
+        function configurarJogadores(qtd) {
+            jogadores = [];
+            const fichasIniciais = parseInt(document.getElementById('qtd-fichas').value);
+            for(let i=1; i<=qtd; i++) {
+                const nome = document.getElementById(`nome-p${i}`).value || `JOGADOR ${i}`;
+                const cor = document.getElementById(`cor-p${i}`).value || COR_NEUTRA_JOGADOR;
+                jogadores.push({ nome, cor, timeline: [], fichas: fichasIniciais });
+            }
+            indiceJogadorAtual = 0;
+        }
+
+        function distribuirCartasIniciais() { let cursor = 0; jogadores.forEach(j => { if(cursor < bancoDeMusicas.length) { let carta = bancoDeMusicas[cursor]; carta.usada = true; carta.inicial = true; j.timeline.push(carta); salvarHistorico(obterIdMusica(carta)); cursor++; } }); }
+
+        function atualizarInfoBar() {
+            const j = jogadores[indiceJogadorAtual];
+            const nomeEl = document.getElementById('nome-jogador-atual');
+            nomeEl.innerText = j.nome; nomeEl.style.color = j.cor;
+            document.getElementById('progresso-atual').innerText = `${Math.max(0, j.timeline.length - 1)} / ${maximoCartasVitoria}`;
+            document.getElementById('fichas-atual').innerText = j.fichas;
+        }
+
+        function confirmarReiniciar() { if(confirm("TEM CERTEZA? O jogo atual sera encerrado.")) { location.reload(); } }
+        
+        function abrirPlacarGeral() {
+            const lista = document.getElementById('placar-lista'); lista.innerHTML = '';
+            const ranking = [...jogadores].sort((a,b) => b.timeline.length - a.timeline.length);
+            ranking.forEach((j) => {
+                const isCurrent = (j === jogadores[indiceJogadorAtual]);
+                const destaque = isCurrent ? 'border: 2px solid white;' : '';
+                let htmlCartas = '<div class="placar-modal-cartas">';
+                j.timeline.forEach(c => {
+                   if(c.inicial) { htmlCartas += `<div class="placar-modal-carta inicial" style="border:2px dashed ${j.cor};">${c.ano}</div>`; } 
+                   else { htmlCartas += `<div class="placar-modal-carta timeline" style="background:${j.cor};" title="${c.musica} - ${c.artista}">${c.ano}</div>`; }
+                });
+                htmlCartas += '</div>';
+                lista.innerHTML += `
+                    <div class="placar-modal-row" style="border-left:5px solid ${j.cor}; ${destaque}">
+                        <div class="placar-modal-topo">
+                            <span class="placar-modal-nome" style="color:${j.cor};">${j.nome} ${isCurrent ? '<' : ''}</span>
+                            <span class="placar-modal-pontos">${Math.max(0, j.timeline.length-1)} pts</span>
+                        </div>
+                        ${htmlCartas}
+                    </div>
+                `;
+            });
+            document.getElementById('modal-placar').style.display = 'flex';
+        }
+
+        function prepararBancoParaNovaPartida() {
+            bancoDeMusicas.forEach(carta => {
+                carta.usada = false;
+                carta.inicial = false;
+            });
+            embaralhar(bancoDeMusicas);
+        }
+
+        function recriarJogadoresDaConfiguracaoAtual() {
+            if (!configuracaoPartidaAtual) return false;
+            jogadores = configuracaoPartidaAtual.players.map(p => ({
+                nome: p.nome,
+                cor: p.cor,
+                timeline: [],
+                fichas: configuracaoPartidaAtual.fichasIniciais
+            }));
+            indiceJogadorAtual = 0;
+            maximoCartasVitoria = configuracaoPartidaAtual.meta;
+            return true;
+        }
+
+        function reiniciarPartida() {
+            if (!configuracaoPartidaAtual || bancoDeMusicas.length === 0) {
+                abrirDialogo({
+                    titulo: 'NOVA PARTIDA',
+                    mensagem: 'Carregue as musicas e inicie uma partida antes de usar este botao.',
+                    confirmarTexto: 'OK'
+                });
+                return;
+            }
+
+            fecharSidebarExpandidaSeNecessario();
+            liberarAudioAtual();
+            document.getElementById('screen-vitoria').style.display = 'none';
+            document.getElementById('modal-placar').style.display = 'none';
+            document.getElementById('modal-challenger').style.display = 'none';
+            document.getElementById('modal-escolha-genero').style.display = 'none';
+            document.getElementById('area-revelacao').style.display = 'none';
+            vitoriaDeclarada = false;
+            resultadoTurno = { vencedor: null, donoAcertou: false, roubada: false };
+            cartaDaRodada = null;
+            generoForcado = null;
+            deltaFichasJogadorAtualNaRodada = 0;
+            limparResultadosTimeline();
+
+            prepararBancoParaNovaPartida();
+            recriarJogadoresDaConfiguracaoAtual();
+            distribuirCartasIniciais();
+            trocarTela('screen-game');
+            resetarRodada();
+            atualizarStatus(`NOVA PARTIDA INICIADA. VEZ DE ${jogadores[0].nome}`);
+        }
+
+        function abrirModalGenero(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            const j = jogadores[indiceJogadorAtual];
+            if (j.fichas < 1) {
+                atualizarStatus("SEM FICHAS PARA ESCOLHER GENERO.");
+                abrirDialogo({ titulo: 'SEM FICHAS', mensagem: 'Voce precisa de pelo menos 1 ficha para escolher o genero.', confirmarTexto: 'OK' });
+                return;
+            }
+            const lista = document.getElementById('lista-generos-extra'); lista.innerHTML = "";
+            const generos = Array.from(generosDisponiveis).sort();
+            generos.forEach(gen => { lista.innerHTML += `<button style="padding:10px; background:#222; border:1px solid #555; color:var(--ind-primary);" onclick="comprarGenero('${gen.replace(/'/g, "\\'")}')">${gen}</button>`; });
+            document.getElementById('modal-escolha-genero').style.display = 'flex';
+        }
+
+        function comprarGenero(gen) {
+            const j = jogadores[indiceJogadorAtual]; j.fichas--; tocarSFX('moeda'); generoForcado = gen;
+            deltaFichasJogadorAtualNaRodada--;
+            document.getElementById('modal-escolha-genero').style.display = 'none'; document.getElementById('btn-escolher-genero').style.display = 'none';
+            atualizarSidebar(); atualizarInfoBar(); atualizarStatus(`GENERO ESCOLHIDO: ${gen.toUpperCase()}`);
+            document.getElementById('label-play').innerHTML = `<span style="color:var(--ind-neon-purple); font-weight:bold;">[ TOCAR: ${gen.toUpperCase()} ]</span>`;
+        }
+
+        function tocarMusicaRodada() {
+            let pool = bancoDeMusicas.filter(m => !m.usada);
+            if (generoForcado) {
+                const poolFiltrada = pool.filter(m => generoEhCompativel(m.genero, generoForcado));
+                if (poolFiltrada.length > 0) { pool = poolFiltrada; } else { abrirDialogo({ titulo: 'GENERO INDISPONIVEL', mensagem: `Nao ha musicas de ${generoForcado}.`, confirmarTexto: 'OK' }); jogadores[indiceJogadorAtual].fichas++; deltaFichasJogadorAtualNaRodada++; generoForcado = null; atualizarSidebar(); atualizarInfoBar(); }
+            }
+            if(pool.length === 0) {
+                atualizarStatus("ACABARAM AS MUSICAS DISPONIVEIS.");
+                abrirDialogo({ titulo: 'SEM MUSICAS', mensagem: 'Acabaram as musicas disponiveis para esta partida.', confirmarTexto: 'OK' });
+                return;
+            }
+            const carta = pool[Math.floor(Math.random() * pool.length)];
+            cartaDaRodada = carta; carta.usada = true;
+            pararRastreamentoBraco(true);
+            document.getElementById('area-play').style.display = 'none';
+            document.getElementById('area-misterio').style.display = 'block';
+            document.getElementById('btn-pular').disabled = true;
+            atualizarVisualPremium('drop');
+            atualizarStatus("PREPARANDO O DISCO...");
+            faseRodada = 0;
+            const j = jogadores[indiceJogadorAtual];
+            setTimeout(() => {
+                atualizarVisualPremium('loading');
+                atualizarStatus("POSICIONANDO A AGULHA...");
+                setTimeout(() => {
+                    aplicarAnguloBraco(TONEARM_START_ANGLE);
+                    tocarCartaAtual(carta);
+                    document.getElementById('btn-pular').disabled = (j.fichas < 1);
+                    faseRodada = 1;
+                    atualizarStatus("OUVINDO... ESCOLHA O SLOT NA TIMELINE.");
+                    renderizarTimeline(true);
+                }, 980);
+            }, 640);
+        }
+
+        function handleSlotClick(index) {
+            if (faseRodada === 1) {
+                slotEscolhidoPeloDono = index; faseRodada = 2;
+                document.getElementById('btn-revelar').disabled = false; document.getElementById('btn-desfazer').disabled = false;
+                document.getElementById('btn-pular').disabled = true;
+                atualizarStatus("POSICAO MARCADA. DESAFIOS ABERTOS."); renderizarTimeline(true);
+            } else if (faseRodada === 2) { if (index === slotEscolhidoPeloDono) return; abrirModalDesafio(index); }
+        }
+
+        function revelarCarta() {
+            if (slotEscolhidoPeloDono < 0) {
+                atualizarStatus("ESCOLHA UM SLOT ANTES DE CONFIRMAR.");
+                abrirDialogo({ titulo: 'ESCOLHA O SLOT', mensagem: 'Marque um slot na timeline antes de confirmar a rodada.', confirmarTexto: 'OK' });
+                return;
+            }
+            liberarAudioAtual(); salvarHistorico(obterIdMusica(cartaDaRodada));
+            const jAtual = jogadores[indiceJogadorAtual]; const timeline = jAtual.timeline; const ano = cartaDaRodada.ano;
+            const donoAcertou = verificarPosicao(timeline, slotEscolhidoPeloDono, ano);
+            
+            resultadoTurno = { vencedor: null, posicao: -1, roubada: false }; let msg = ""; let mostrarBonus = false;
+            let desafianteVencedor = null; if (!donoAcertou) { desafianteVencedor = apostasDesafiantes.find(a => verificarPosicao(timeline, a.slot, ano)); }
+            const desafiosPerdedores = apostasDesafiantes.filter(a => !desafianteVencedor || a.player !== desafianteVencedor.player);
+
+            apostasDesafiantes.forEach(a => { if (!desafianteVencedor || a.player !== desafianteVencedor.player) { jogadores[a.player].fichas = Math.max(0, jogadores[a.player].fichas - 1); } });
+
+            if (donoAcertou) {
+                resultadoTurno.vencedor = jAtual; resultadoTurno.posicao = slotEscolhidoPeloDono; jAtual.timeline.splice(slotEscolhidoPeloDono, 0, cartaDaRodada);
+                msg = `<span style='color:var(--ind-primary)'>${jAtual.nome} ACERTOU A POSICAO!</span>`; mostrarBonus = true; tocarSFX('acerto'); 
+                marcarResultadoSlot(slotEscolhidoPeloDono, 'win', jAtual.cor);
+                apostasDesafiantes.forEach(a => marcarResultadoSlot(a.slot, 'lose', jogadores[a.player].cor));
+            } else {
+                if (desafianteVencedor) {
+                    const jDesaf = jogadores[desafianteVencedor.player]; resultadoTurno.vencedor = jDesaf; resultadoTurno.roubada = true; 
+                    inserirOrdenado(jDesaf.timeline, cartaDaRodada); msg = `<span style="color:var(--ind-danger)">${jDesaf.nome} ROUBOU A CARTA!</span>`; tocarSFX('acerto'); 
+                    marcarResultadoSlot(desafianteVencedor.slot, 'win', jDesaf.cor);
+                    marcarResultadoSlot(slotEscolhidoPeloDono, 'lose', jAtual.cor);
+                    desafiosPerdedores.forEach(a => marcarResultadoSlot(a.slot, 'lose', jogadores[a.player].cor));
+                } else { msg = "NINGUEM ACERTOU. CARTA DESCARTADA."; tocarSFX('erro'); }
+                if (!desafianteVencedor) {
+                    marcarResultadoSlot(slotEscolhidoPeloDono, 'lose', jAtual.cor);
+                    apostasDesafiantes.forEach(a => marcarResultadoSlot(a.slot, 'lose', jogadores[a.player].cor));
+                }
+            }
+            document.getElementById('area-misterio').style.display = 'none'; document.getElementById('area-revelacao').style.display = 'block'; atualizarVisualPremium('reveal');
+            document.getElementById('res-ano').innerText = ano; document.getElementById('res-musica').innerText = cartaDaRodada.musica;
+            document.getElementById('res-artista').innerText = cartaDaRodada.artista; document.getElementById('res-genero').innerText = cartaDaRodada.genero.toUpperCase();
+            document.getElementById('res-msg').innerHTML = msg;
+            const divBonus = document.querySelector('.bonus-section');
+            if(mostrarBonus) { divBonus.style.display = 'flex'; document.getElementById('btn-bonus-win').disabled = false; document.getElementById('btn-bonus-fail').disabled = false; } else { divBonus.style.display = 'none'; }
+            renderizarTimeline(false);
+            verificarVitoria(); atualizarSidebar(); atualizarInfoBar();
+        }
+
+        function verificarPosicao(timeline, index, anoCarta) { const anterior = index > 0 ? timeline[index-1].ano : -9999; const posterior = index < timeline.length ? timeline[index].ano : 9999; return (anoCarta >= anterior && anoCarta <= posterior); }
+        function inserirOrdenado(timeline, carta) { let idx = timeline.findIndex(c => c.ano > carta.ano); if(idx === -1) timeline.push(carta); else timeline.splice(idx, 0, carta); }
+
+        function renderizarTimeline(interativo) {
+            const c = document.getElementById('timeline'); c.innerHTML = ''; const timeline = jogadores[indiceJogadorAtual].timeline;
+            const mostrarSlots = interativo || mostrarResultadosNaTimeline();
+            timeline.forEach((carta, idx) => {
+                if(mostrarSlots) criarSlot(c, idx, interativo);
+                const div = document.createElement('div');
+                div.className = 'card ' + (carta.inicial ? 'card-inicial' : '');
+                div.title = `${carta.musica} - ${carta.artista}`;
+                div.dataset.tooltip = `${carta.musica} | ${carta.artista}`;
+                div.innerHTML = `<span class="ano">${carta.ano}</span>`;
+                div.onclick = () => verDetalhes(carta);
+                c.appendChild(div);
+            });
+            if(mostrarSlots) criarSlot(c, timeline.length, interativo);
+        }
+
+        function criarSlot(container, idx, interativo = true) {
+            const div = document.createElement('div');
+            div.className = 'slot';
+            div.innerText = '+';
+            const resultadoSlot = resultadoSlots[idx];
+
+            if (mostrarResultadosNaTimeline()) {
+                if (resultadoSlot?.status === 'win') {
+                    div.classList.add('result-win');
+                    div.innerHTML = '<span class="slot-marker">&#10003;</span>';
+                } else if (resultadoSlot?.status === 'lose') {
+                    div.classList.add('result-lose');
+                    div.innerHTML = '<span class="slot-marker">&#10005;</span>';
+                }
+                if (resultadoSlot?.cor) {
+                    div.style.borderColor = resultadoSlot.cor;
+                    div.style.boxShadow = `0 0 16px ${resultadoSlot.cor}66`;
+                }
+            } else if(idx === slotEscolhidoPeloDono) {
+                div.classList.add('selected-owner');
+                div.innerText = 'ALVO';
+                div.style.borderColor = jogadores[indiceJogadorAtual].cor;
+            } else {
+                const desafio = apostasDesafiantes.find(a => a.slot === idx);
+                if(desafio) {
+                    div.classList.add('selected-challenger');
+                    div.innerText = '!';
+                    div.style.borderColor = jogadores[desafio.player].cor;
+                }
+            }
+
+            if (interativo) {
+                div.onclick = () => handleSlotClick(idx);
+            } else {
+                div.style.cursor = 'default';
+            }
+            container.appendChild(div);
+        }
+
+        function resetarRodada() {
+            liberarAudioAtual();
+            pararRastreamentoBraco(true);
+            document.getElementById('area-play').style.display = 'block'; document.getElementById('area-misterio').style.display = 'none'; document.getElementById('area-revelacao').style.display = 'none'; document.getElementById('timeline').innerHTML = '';
+            faseRodada = 0; slotEscolhidoPeloDono = -1; apostasDesafiantes = []; generoForcado = null; deltaFichasJogadorAtualNaRodada = 0; document.getElementById('label-play').innerText = "[ USE O BOTAO TOCAR ]"; atualizarVisualPremium('idle');
+            limparResultadosTimeline();
+            document.getElementById('btn-revelar').disabled = true; document.getElementById('btn-desfazer').disabled = true;
+            const j = jogadores[indiceJogadorAtual]; const btnGenero = document.getElementById('btn-escolher-genero');
+            if (modoTodosGeneros && j.fichas >= 1) { btnGenero.style.display = 'block'; } else { btnGenero.style.display = 'none'; }
+            renderizarTimeline(false); atualizarSidebar(); atualizarInfoBar(); atualizarStatus(`VEZ DE ${j.nome}`);
+        }
+
+        function proximoJogador() { indiceJogadorAtual = (indiceJogadorAtual + 1) % jogadores.length; resetarRodada(); }
+        function atualizarStatus(msg) { document.getElementById('fase-msg').innerText = msg; }
+        function trocarTela(id) { fecharSidebarExpandidaSeNecessario(); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+        function moverTimeline(direcao) { document.getElementById('timeline').scrollBy({ left: direcao * 250, behavior: 'smooth' }); }
+
+        function alternarExpansaoSidebar(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            const sidebar = document.getElementById('sidebar-stats');
+            if (!sidebar) return;
+            sidebarAmpliada = !sidebarAmpliada;
+            sidebar.classList.toggle('sidebar-expanded', sidebarAmpliada);
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                fecharPaletasCor();
+            }
+            if (event.key === 'Escape' && sidebarAmpliada) {
+                const sidebar = document.getElementById('sidebar-stats');
+                sidebarAmpliada = false;
+                if (sidebar) sidebar.classList.remove('sidebar-expanded');
+            }
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!event.target.closest('.player-setup-card')) {
+                fecharPaletasCor();
+            }
+        });
+
+        function fecharSidebarExpandidaSeNecessario() {
+            const sidebar = document.getElementById('sidebar-stats');
+            if (!sidebarAmpliada || !sidebar) return;
+            sidebarAmpliada = false;
+            sidebar.classList.remove('sidebar-expanded');
+        }
+
+        function gerarInputsJogadores() {
+            const qtd = document.getElementById('qtd-players').value;
+            const container = document.getElementById('player-inputs');
+            container.innerHTML = "";
+            fecharPaletasCor();
+            for(let i=1; i<=qtd; i++) {
+                container.innerHTML += `<div class="player-setup-card" data-player-idx="${i}" style="--player-accent:${COR_NEUTRA_JOGADOR}; --player-ink:#e7eef2; --player-placeholder:rgba(231,238,242,0.72); --player-dot:rgba(231,238,242,0.5);"><div class="player-name-row" onclick="togglePaletaCor(${i}, event)"><input type="text" id="nome-p${i}" class="player-name-input" placeholder="Nome Jogador ${i}" onclick="event.stopPropagation()"><button type="button" class="player-color-trigger" onclick="togglePaletaCor(${i}, event)" aria-label="Escolher cor"><span class="player-color-dot"></span></button></div><div class="player-color-palette" onclick="event.stopPropagation()">${markupPaletaCores(i)}</div><input type="hidden" id="cor-p${i}" value=""></div>`;
+            }
+        }
+        function setCor(idx, cor, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            restaurarSelecaoCor(idx, cor);
+            fecharPaletasCor();
+        }
+        function salvarConfiguracao() { const config = { qtd: document.getElementById('qtd-players').value, meta: document.getElementById('input-vitoria').value, fichas: document.getElementById('qtd-fichas').value, players: jogadores.map(j => ({ nome: j.nome, cor: j.cor })) }; localStorage.setItem('musicplus_config', JSON.stringify(config)); }
+        function carregarConfiguracoesSalvas() {
+            const cfg = lerStorageJson('musicplus_config', null);
+            if(cfg) {
+                document.getElementById('qtd-players').value = cfg.qtd;
+                const metaNormalizada = Math.min(20, Math.max(1, parseInt(cfg.meta || '10', 10) || 10));
+                document.getElementById('input-vitoria').value = String(metaNormalizada);
+                if(cfg.fichas) document.getElementById('qtd-fichas').value = cfg.fichas;
+                gerarInputsJogadores();
+                (cfg.players || []).forEach((p, idx) => {
+                    const i = idx + 1;
+                    if(i <= cfg.qtd) {
+                        document.getElementById(`nome-p${i}`).value = p.nome;
+                        restaurarSelecaoCor(i, p.cor && p.cor !== COR_NEUTRA_JOGADOR ? p.cor : '');
+                    }
+                });
+            } else { gerarInputsJogadores(); }
+        }
+        function carregarHistorico() { historicoTocadas = lerStorageJson('musicplus_historico', []); }
+        function salvarHistorico(musica) { if(!historicoTocadas.includes(musica)) { historicoTocadas.push(musica); localStorage.setItem('musicplus_historico', JSON.stringify(historicoTocadas)); } }
+        function atualizarStatsCache() { const h = lerStorageJson('musicplus_historico', []); const el = document.getElementById('stat-tocadas'); if(el) el.innerText = h.length; }
+        function limparCache() {
+            if(confirm("Apagar somente o historico de musicas ja tocadas?")) {
+                localStorage.removeItem('musicplus_historico');
+                historicoTocadas = [];
+                atualizarStatsCache();
+                alert("Historico de musicas tocadas limpo!");
+            }
+        }
+
+        async function usarFichaParaPular() {
+            const confirmar = await abrirDialogo({
+                titulo: 'PULAR MUSICA',
+                mensagem: 'Gastar 1 ficha para pular a musica atual?',
+                confirmarTexto: 'PULAR',
+                cancelarTexto: 'VOLTAR',
+                mostrarCancelar: true,
+                confirmarClasse: 'btn-neon-purple'
+            });
+            if (!confirmar) return;
+            jogadores[indiceJogadorAtual].fichas--;
+            deltaFichasJogadorAtualNaRodada--;
+            tocarSFX('moeda');
+            atualizarSidebar();
+            atualizarInfoBar();
+            liberarAudioAtual();
+            tocarMusicaRodada();
+        }
+        function alternarPausa() {
+            if(audioPlayer.paused) {
+                if (audioPlayer.ended || audioPlayer.currentTime >= audioPlayer.duration) {
+                    audioPlayer.currentTime = 0;
+                }
+                audioPlayer.play().then(() => {
+                    atualizarVisualPremium('playing');
+                }).catch(() => {
+                    atualizarVisualPremium('paused');
+                });
+            } else {
+                audioPlayer.pause();
+                atualizarVisualPremium('paused');
+            }
+        }
+        function atualizarSidebar() {
+            const div = document.getElementById('sidebar-content-pc');
+            div.innerHTML = jogadores.map((j, idx) => `
+                <div class="sb-row ${idx === indiceJogadorAtual ? 'active' : ''}">
+                    <span class="sb-name" style="color:${j.cor};">${j.nome}</span>
+                    <span class="sb-value">${j.fichas}</span>
+                    <span class="sb-value">${Math.max(0, j.timeline.length - 1)}</span>
+                </div>
+            `).join('');
+        }
+        
+        function abrirModalDesafio(idx) {
+            const lista = document.getElementById('lista-challengers'); lista.innerHTML = ""; const jaDesafiou = apostasDesafiantes.map(a => a.player);
+            jogadores.forEach((j, pIdx) => { if(pIdx !== indiceJogadorAtual && j.fichas > 0 && !jaDesafiou.includes(pIdx)) { lista.innerHTML += `<button class="challenger-btn" style="width:100%; margin:5px 0; padding:10px; background:${j.cor}; color:black; font-weight:bold;" onclick="confirmarDesafio(${idx}, ${pIdx})">! ${j.nome} (Fichas: ${j.fichas})</button>`; } });
+            if(lista.innerHTML === "") {
+                atualizarStatus("NINGUEM TEM FICHAS PARA CONTESTAR.");
+                abrirDialogo({ titulo: 'SEM CONTESTACAO', mensagem: 'Nenhum adversario tem fichas para contestar esse ano.', confirmarTexto: 'OK' });
+                return;
+            }
+            document.getElementById('modal-challenger').style.display = 'flex';
+        }
+        function confirmarDesafio(slot, playerIdx) { apostasDesafiantes.push({ slot, player: playerIdx }); document.getElementById('modal-challenger').style.display = 'none'; renderizarTimeline(true); }
+        function processarBonus(ganhou) {
+            const j = resultadoTurno.vencedor || jogadores[indiceJogadorAtual];
+            if (!j) return;
+
+            if (ganhou) {
+                if (j.fichas < 5) {
+                    j.fichas++;
+                    if (j === jogadores[indiceJogadorAtual]) deltaFichasJogadorAtualNaRodada++;
+                }
+                tocarSFX('moeda');
+            } else {
+                if (j.fichas > 0) j.fichas--;
+                if (j === jogadores[indiceJogadorAtual]) deltaFichasJogadorAtualNaRodada--;
+                tocarSFX('erro');
+            }
+
+            atualizarSidebar();
+            atualizarInfoBar();
+            document.querySelector('.bonus-section').style.display = 'none';
+        }
+        function desfazerUltimaAcao() { if(apostasDesafiantes.length > 0) { apostasDesafiantes.pop(); } else { slotEscolhidoPeloDono = -1; faseRodada = 1; document.getElementById('btn-revelar').disabled = true; document.getElementById('btn-desfazer').disabled = true; document.getElementById('btn-pular').disabled = false; atualizarStatus("ACAO DESFEITA. ESCOLHA NOVAMENTE."); } renderizarTimeline(true); }
+        async function cancelarRodada() {
+            const confirmar = await abrirDialogo({
+                titulo: 'CANCELAR RODADA',
+                mensagem: 'Deseja cancelar a rodada?\n\n- Fichas apostadas serao devolvidas.\n- A carta atual sera descartada, mesmo se foi ganha.',
+                confirmarTexto: 'CANCELAR RODADA',
+                cancelarTexto: 'VOLTAR',
+                mostrarCancelar: true,
+                confirmarClasse: 'btn-danger'
+            });
+            if(!confirmar) return;
+            apostasDesafiantes.forEach(a => {
+                const isWinningChallenger = resultadoTurno.roubada && resultadoTurno.vencedor === jogadores[a.player];
+                if (!isWinningChallenger) {
+                    jogadores[a.player].fichas++;
+                }
+            });
+            if (deltaFichasJogadorAtualNaRodada !== 0) {
+                jogadores[indiceJogadorAtual].fichas -= deltaFichasJogadorAtualNaRodada;
+            }
+            if (resultadoTurno.vencedor) {
+                const timeline = resultadoTurno.vencedor.timeline;
+                const index = timeline.indexOf(cartaDaRodada);
+                if (index > -1) {
+                    timeline.splice(index, 1);
+                }
+            }
+            atualizarSidebar();
+            atualizarInfoBar();
+            resetarRodada();
+        }
+        function verificarVitoria() { const j = resultadoTurno.vencedor; if (j && j.timeline.length - 1 >= maximoCartasVitoria) { document.getElementById('screen-vitoria').style.display = 'flex'; document.getElementById('nome-vencedor').innerText = j.nome; document.getElementById('nome-vencedor').style.color = j.cor; if(!vitoriaDeclarada) { vitoriaDeclarada = true; tocarSFX('vitoria'); dispararConfetes(); } } }
+        function verDetalhes(c) { abrirDialogo({ titulo: c.musica, mensagem: `${c.artista}\n${c.ano}\n${c.genero}`, confirmarTexto: 'FECHAR' }); }
+        function embaralhar(arr) { for(let i=arr.length-1; i>0; i--) { const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
