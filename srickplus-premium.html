@@ -2208,6 +2208,15 @@
                         </select>
                     </div>
                 </div>
+                <div class="setup-meta-row">
+                    <span class="setup-meta-label">Modo de Jogo:</span>
+                    <div class="setup-choice-shell">
+                        <select id="modo-partida" onchange="atualizarContagemFiltrada()">
+                        <option value="normal" selected>Normal</option>
+                        <option value="festa">Festa</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <div style="flex: 1; min-width: 300px; border: var(--border-style); background: var(--ind-metal-dark); padding: 15px; box-shadow: var(--ind-shadow);">
@@ -2754,6 +2763,7 @@
         let generosDisponiveis = new Set();
         let resultadoTurno = { vencedor: null, donoAcertou: false, roubada: false };
         let modoTodosGeneros = false, generoForcado = null, vitoriaDeclarada = false;
+        let modoPartidaAtual = 'normal';
         let deltaFichasJogadorAtualNaRodada = 0;
         let currentAudioUrl = null;
         let resultadoSlots = {};
@@ -2896,6 +2906,7 @@
                     artista: dados.artista,
                     ano: dados.ano,
                     genero: gen,
+                    party_mode: Boolean(dados.party_mode),
                     usada: false
                 });
                 processados++;
@@ -3170,9 +3181,26 @@
             document.getElementById('stat-generos').innerText = listaOrdenada.length;
         }
 
+        function obterModoPartidaSelecionado() {
+            return document.getElementById('modo-partida')?.value || 'normal';
+        }
+
+        function filtrarBancoPorModo(origem) {
+            const modo = obterModoPartidaSelecionado();
+            if (modo !== 'festa') return origem.slice();
+            return origem.filter(m => m.party_mode);
+        }
+
         function toggleGenero(el) { el.classList.toggle('selected'); const cb = el.querySelector('input'); cb.checked = !cb.checked; atualizarContagemFiltrada(); }
         function alternarTodosGeneros() { const opcoes = document.querySelectorAll('.genre-option'); const temDesmarcado = Array.from(opcoes).some(el => !el.classList.contains('selected')); opcoes.forEach(el => { const cb = el.querySelector('input'); if (temDesmarcado) { el.classList.add('selected'); cb.checked = true; } else { el.classList.remove('selected'); cb.checked = false; } }); atualizarContagemFiltrada(); }
-        function atualizarContagemFiltrada() { const selecionados = Array.from(document.querySelectorAll('.genre-checkbox:checked')).map(cb => cb.value); const qtd = bancoTotal.filter(m => selecionados.includes(m.genero)).length; const el = document.getElementById('stat-filtradas'); el.innerText = qtd; el.style.color = qtd < 20 ? 'red' : 'var(--ind-primary)'; }
+        function atualizarContagemFiltrada() {
+            const selecionados = Array.from(document.querySelectorAll('.genre-checkbox:checked')).map(cb => cb.value);
+            const poolModo = filtrarBancoPorModo(bancoTotal);
+            const qtd = poolModo.filter(m => selecionados.includes(m.genero)).length;
+            const el = document.getElementById('stat-filtradas');
+            el.innerText = qtd;
+            el.style.color = qtd < 20 ? 'red' : 'var(--ind-primary)';
+        }
         function irParaSetup() {
             const overlay = document.getElementById('intro-overlay');
             if (overlay) {
@@ -3191,8 +3219,13 @@
             const generosSelecionados = Array.from(document.querySelectorAll('.genre-checkbox:checked')).map(cb => cb.value);
             if (generosSelecionados.length === 0) return alert("Selecione pelo menos 1 genero musical!");
             
+            modoPartidaAtual = obterModoPartidaSelecionado();
+            const poolModo = filtrarBancoPorModo(bancoTotal);
+            if (modoPartidaAtual === 'festa' && poolModo.length === 0) {
+                return alert("Nenhuma musica com GROUPING FESTA foi encontrada no gabarito atual.");
+            }
             modoTodosGeneros = (generosSelecionados.length === generosDisponiveis.size);
-            bancoFiltrado = bancoTotal.filter(m => generosSelecionados.includes(m.genero));
+            bancoFiltrado = poolModo.filter(m => generosSelecionados.includes(m.genero));
             carregarHistorico();
             bancoDeMusicas = bancoFiltrado.filter(m => !historicoTocadas.includes(obterIdMusica(m)));
 
@@ -3205,6 +3238,7 @@
                 qtdJogadores,
                 fichasIniciais: parseInt(document.getElementById('qtd-fichas').value, 10),
                 meta: maximoCartasVitoria,
+                modo: modoPartidaAtual,
                 players: jogadores.map(j => ({ nome: j.nome, cor: j.cor }))
             };
             salvarConfiguracao();
@@ -3557,7 +3591,7 @@
             restaurarSelecaoCor(idx, cor);
             fecharPaletasCor();
         }
-        function salvarConfiguracao() { const config = { qtd: document.getElementById('qtd-players').value, meta: document.getElementById('input-vitoria').value, fichas: document.getElementById('qtd-fichas').value, players: jogadores.map(j => ({ nome: j.nome, cor: j.cor })) }; localStorage.setItem('musicplus_config', JSON.stringify(config)); }
+        function salvarConfiguracao() { const config = { qtd: document.getElementById('qtd-players').value, meta: document.getElementById('input-vitoria').value, fichas: document.getElementById('qtd-fichas').value, modo: document.getElementById('modo-partida').value, players: jogadores.map(j => ({ nome: j.nome, cor: j.cor })) }; localStorage.setItem('musicplus_config', JSON.stringify(config)); }
         function carregarConfiguracoesSalvas() {
             const cfg = lerStorageJson('musicplus_config', null);
             if(cfg) {
@@ -3565,6 +3599,7 @@
                 const metaNormalizada = Math.min(20, Math.max(1, parseInt(cfg.meta || '10', 10) || 10));
                 document.getElementById('input-vitoria').value = String(metaNormalizada);
                 if(cfg.fichas) document.getElementById('qtd-fichas').value = cfg.fichas;
+                document.getElementById('modo-partida').value = cfg.modo === 'festa' ? 'festa' : 'normal';
                 gerarInputsJogadores();
                 (cfg.players || []).forEach((p, idx) => {
                     const i = idx + 1;
@@ -3574,6 +3609,7 @@
                     }
                 });
             } else { gerarInputsJogadores(); }
+            modoPartidaAtual = obterModoPartidaSelecionado();
         }
         function carregarHistorico() { historicoTocadas = lerStorageJson('musicplus_historico', []); }
         function salvarHistorico(musica) { if(!historicoTocadas.includes(musica)) { historicoTocadas.push(musica); localStorage.setItem('musicplus_historico', JSON.stringify(historicoTocadas)); } }
